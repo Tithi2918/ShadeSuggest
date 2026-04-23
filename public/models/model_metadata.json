@@ -1,0 +1,38 @@
+{
+  "model_name": "shadesense_skin_tone",
+  "architecture": "efficientnet_b0",
+  "num_classes": 10,
+  "input_size": [
+    1,
+    3,
+    224,
+    224
+  ],
+  "input_name": "input",
+  "output_name": "output",
+  "classes": [
+    "MST-01",
+    "MST-02",
+    "MST-03",
+    "MST-04",
+    "MST-05",
+    "MST-06",
+    "MST-07",
+    "MST-08",
+    "MST-09",
+    "MST-10"
+  ],
+  "imagenet_mean": [
+    0.485,
+    0.456,
+    0.406
+  ],
+  "imagenet_std": [
+    0.229,
+    0.224,
+    0.225
+  ],
+  "val_accuracy": 79.0,
+  "trained_epoch": 18,
+  "opset_version": 17
+}
