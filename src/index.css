@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'DM Sans', sans-serif;
+  }
+  body {
+    background-color: #FAF6F1;
+    color: #2C2420;
+  }
+}
