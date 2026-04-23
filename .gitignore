@@ -6,3 +6,11 @@ dist/
 *.log
 coverage/
 .vite/
+ml/venv/
+ml/dataset/raw/
+ml/dataset/processed/
+ml/checkpoints/*.pth
+**/__pycache__/
+*.pyc
+*.dylib
+*.so
