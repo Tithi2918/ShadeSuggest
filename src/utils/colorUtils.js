@@ -132,7 +132,7 @@ export function deltaE2000(lab1, lab2) {
   const SH  = 1 + 0.015 * Cbp * T;
   const Cbp7 = Cbp ** 7;
   const RC  = 2 * Math.sqrt(Cbp7 / (Cbp7 + 25 ** 7));
-  const dTheta = 30 * Math.exp(-((Hbp - 275) / 25) ** 2);
+  const dTheta = 30 * Math.exp(-(((Hbp - 275) / 25) ** 2));
   const RT  = -Math.sin(2 * dTheta * Math.PI / 180) * RC;
 
   return Math.sqrt(
