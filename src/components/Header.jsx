@@ -16,9 +16,10 @@ export default function Header() {
         {/* Logo */}
         <Link
           to="/"
-          className="font-display text-2xl font-semibold text-brand tracking-wide hover:opacity-80 transition-opacity"
+          className="font-display text-[1.6rem] font-semibold text-brand tracking-wide hover:opacity-80 transition-opacity flex items-center gap-1.5"
           aria-label="ShadeSense home"
         >
+          <span className="w-2 h-2 rounded-full bg-brand-accent inline-block" aria-hidden="true" />
           ShadeSense
         </Link>
 
@@ -43,7 +44,7 @@ export default function Header() {
           <Link
             to="/app"
             id="header-cta"
-            className="ml-2 px-5 py-2 bg-brand text-white text-sm font-body rounded-full hover:bg-brand/90 transition-colors duration-200"
+            className="ml-2 px-4 py-1.5 border border-brand text-brand text-sm font-body rounded-full hover:bg-brand hover:text-white transition-all duration-200"
           >
             Analyse My Skin
           </Link>

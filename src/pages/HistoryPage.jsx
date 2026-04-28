@@ -39,7 +39,7 @@ export default function HistoryPage() {
   return (
     <div className="min-h-screen bg-cream">
       <Header />
-      <main className="max-w-3xl mx-auto px-6 py-12" id="history-main">
+      <main className="max-w-5xl mx-auto px-8 lg:px-16 py-12" id="history-main">
 
         {/* Page header */}
         <div className="flex items-start justify-between mb-8">
