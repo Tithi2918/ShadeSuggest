@@ -45,7 +45,7 @@ export default function ResultsPanel() {
     : '';
 
   return (
-    <div id="results-panel" className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-10">
+    <div id="results-panel" className="max-w-5xl mx-auto px-6 py-10 flex flex-col gap-10 anim-fade-up">
 
       {/* ── Skin Tone Card ───────────────────────────────────────────────── */}
       <section
@@ -53,7 +53,7 @@ export default function ResultsPanel() {
         className="bg-white rounded-2xl p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6 border border-brand-light"
       >
         <div
-          className="w-24 h-24 rounded-full flex-shrink-0 border-4 border-white shadow-md"
+          className="w-24 h-24 rounded-full flex-shrink-0 border-4 border-white shadow-md anim-scale-in"
           style={{ backgroundColor: dominantHex }}
           aria-label={`Dominant skin tone colour: ${dominantHex}`}
         />
@@ -82,8 +82,12 @@ export default function ResultsPanel() {
               aria-label="Detection confidence"
             >
               <div
-                className="h-full bg-brand rounded-full transition-all duration-700"
-                style={{ width: `${confidence}%` }}
+                className="h-full bg-brand rounded-full"
+                style={{
+                  width: `${confidence}%`,
+                  animation: 'progressFill 1.2s ease-out 0.3s both',
+                  '--progress-target': `${confidence}%`,
+                }}
               />
             </div>
             <span className="text-xs text-muted tabular-nums">{confidence}% confidence</span>
@@ -147,8 +151,10 @@ export default function ResultsPanel() {
             </h3>
             {products.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} category={key} />
+                {products.map((product, i) => (
+                  <div key={product.id} className="anim-fade-up" style={{ animationDelay: `${i * 80}ms` }}>
+                    <ProductCard product={product} category={key} />
+                  </div>
                 ))}
               </div>
             ) : (

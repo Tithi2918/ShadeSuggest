@@ -11,7 +11,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-cream/90 backdrop-blur-sm border-b border-brand-light">
+    <header className="sticky top-0 z-50 bg-cream/90 backdrop-blur-sm border-b border-brand-light anim-fade-down">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link

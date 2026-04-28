@@ -64,7 +64,7 @@ export default function UploadPanel() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-6 py-12">
-      <div className="w-full max-w-xl flex flex-col gap-7">
+      <div className="w-full max-w-xl flex flex-col gap-7 anim-fade-up">
 
         {/* Page heading */}
         <div className="text-center">
@@ -87,12 +87,12 @@ export default function UploadPanel() {
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           onDrop={onDrop}
-          className={`relative rounded-3xl cursor-pointer transition-all duration-200 overflow-hidden
+          className={`relative rounded-3xl cursor-pointer transition-all duration-300 overflow-hidden
             ${dragOver
               ? 'ring-2 ring-brand ring-offset-2 ring-offset-cream bg-brand-light scale-[1.01]'
               : preview
                 ? 'ring-1 ring-brand-light hover:ring-brand/30'
-                : 'bg-white border-2 border-dashed border-brand/20 hover:border-brand/50 hover:bg-brand-light/20'
+                : 'bg-white border-2 border-dashed border-brand/20 hover:border-brand/50 hover:bg-brand-light/20 hover:scale-[1.005]'
             }`}
         >
           {preview ? (
@@ -102,11 +102,10 @@ export default function UploadPanel() {
                 alt="Selected photo preview"
                 className="w-full h-80 object-cover"
               />
-              {/* Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-charcoal/50 via-transparent to-transparent flex flex-col justify-end p-5">
                 <div className="flex items-center justify-between">
-                  <p className="text-white text-sm font-medium">{file?.name}</p>
-                  <span className="text-white/80 text-xs bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
+                  <p className="text-white text-sm font-medium truncate max-w-[70%]">{file?.name}</p>
+                  <span className="text-white/80 text-xs bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 flex-shrink-0">
                     Click to change
                   </span>
                 </div>
@@ -114,19 +113,18 @@ export default function UploadPanel() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center gap-5 py-16 px-8">
-              {/* Animated upload icon */}
-              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors duration-200 ${
-                dragOver ? 'bg-brand' : 'bg-brand-light'
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 ${
+                dragOver ? 'bg-brand scale-110' : 'bg-brand-light'
               }`}>
                 <svg
-                  className={`w-8 h-8 transition-colors duration-200 ${dragOver ? 'text-white' : 'text-brand'}`}
+                  className={`w-8 h-8 transition-all duration-300 ${dragOver ? 'text-white -translate-y-1' : 'text-brand'}`}
                   fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" aria-hidden="true"
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
               </div>
               <div className="text-center">
-                <p className="text-charcoal text-base font-medium mb-1">
+                <p className="text-charcoal text-base font-medium mb-1 transition-all duration-200">
                   {dragOver ? 'Release to upload' : 'Drag & drop your photo'}
                 </p>
                 <p className="text-muted text-sm">
@@ -149,17 +147,17 @@ export default function UploadPanel() {
           />
         </div>
 
-        {/* Photo tips */}
+        {/* Photo tips — fade in only when no preview */}
         {!preview && (
-          <div className="flex items-start gap-3 bg-brand-light/60 rounded-2xl p-4">
+          <div className="anim-fade-in flex items-start gap-3 bg-brand-light/60 rounded-2xl p-4">
             <svg className="w-4 h-4 text-brand flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
             </svg>
             <div>
               <p className="text-xs font-medium text-charcoal mb-1.5">For best results</p>
               <ul className="flex flex-col gap-1">
-                {TIPS.map((tip) => (
-                  <li key={tip} className="text-xs text-muted flex items-center gap-2">
+                {TIPS.map((tip, i) => (
+                  <li key={tip} className="anim-slide-left text-xs text-muted flex items-center gap-2" style={{ animationDelay: `${i * 80}ms` }}>
                     <span className="w-1 h-1 rounded-full bg-brand/40 flex-shrink-0" />
                     {tip}
                   </li>
@@ -174,7 +172,7 @@ export default function UploadPanel() {
           <div
             id="upload-error"
             role="alert"
-            className="flex items-center gap-2.5 bg-red-50 border border-red-100 rounded-xl px-4 py-3"
+            className="anim-scale-in flex items-center gap-2.5 bg-red-50 border border-red-100 rounded-xl px-4 py-3"
           >
             <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
@@ -189,7 +187,7 @@ export default function UploadPanel() {
           onClick={onAnalyse}
           disabled={!file || loading}
           className="w-full py-4 bg-brand text-white font-body text-sm rounded-full
-            hover:bg-brand/90 active:scale-[0.98] transition-all duration-150 shadow-sm
+            hover:bg-brand/90 hover:shadow-md active:scale-[0.98] transition-all duration-200 shadow-sm
             disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none
             flex items-center justify-center gap-2"
         >
@@ -211,7 +209,7 @@ export default function UploadPanel() {
           )}
         </button>
 
-        <p className="text-center text-xs text-muted">
+        <p className="text-center text-xs text-muted anim-fade-in anim-delay-650">
           🔒 Your photo is processed locally and never leaves your device.
         </p>
       </div>
