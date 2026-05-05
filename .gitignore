@@ -14,3 +14,7 @@ ml/checkpoints/*.pth
 *.pyc
 *.dylib
 *.so
+
+# Local WASM asset copies (generated from node_modules — run `npm run copy-wasm` to restore)
+public/onnx/
+public/mediapipe/

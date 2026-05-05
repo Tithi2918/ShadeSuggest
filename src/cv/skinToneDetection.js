@@ -15,8 +15,8 @@ import * as ort from 'onnxruntime-web';
 import { MST_REFERENCE, MODEL_CONFIG, LANDMARKS } from '@utils/constants';
 import { rgbToLab, labToMst, classifyUndertone } from '@utils/colorUtils';
 
-// ── WASM paths (must be set before first session creation) ────────────────────
-ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/';
+// ── WASM paths — served locally from public/onnx/ (no internet required) ─────
+ort.env.wasm.wasmPaths = '/onnx/';
 
 // ── MediaPipe singleton promise-lock ──────────────────────────────────────────
 let faceMeshInstance = null;
@@ -30,8 +30,7 @@ async function getFaceMesh() {
     // Dynamic import keeps MediaPipe out of the initial bundle
     import('@mediapipe/face_mesh').then(({ FaceMesh }) => {
       const fm = new FaceMesh({
-        locateFile: (file) =>
-          `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`,
+        locateFile: (file) => `/mediapipe/${file}`,
       });
 
       fm.setOptions({

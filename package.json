@@ -9,7 +9,8 @@
     "lint": "eslint src --ext .js,.jsx",
     "preview": "vite preview",
     "format": "prettier --write src",
-    "test": "vitest"
+    "test": "vitest",
+    "copy-wasm": "mkdir -p public/onnx public/mediapipe && cp node_modules/onnxruntime-web/dist/*.wasm public/onnx/ && cp node_modules/@mediapipe/face_mesh/face_mesh*.{js,wasm,data,binarypb} public/mediapipe/ && echo 'WASM assets copied'"
   },
   "dependencies": {
     "@mediapipe/camera_utils": "^0.3.1675466862",
