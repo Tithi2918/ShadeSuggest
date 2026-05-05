@@ -1,60 +1,50 @@
 /**
  * skinToneDetection.js
  * Hybrid skin tone pipeline:
- *   1. MediaPipe FaceMesh → 468 landmarks
- *   2. Cheek pixel sampling → average RGB
+ *   1. MediaPipe FaceMesh → 468 landmarks (lazy-init on first send())
+ *   2. Cheek pixel sampling → dominant RGB
  *   3. ONNX EfficientNet-B0 → MST class probabilities
  *   4. CIEDE2000 colour fallback if ONNX disagrees by > 3 MST indices
- *   5. HSL hue → undertone (warm / neutral / cool)
+ *   5. HSL hue → undertone via colorUtils.classifyUndertone(hex)
  *
- * All canvas contexts use { willReadFrequently: true } per browser spec.
+ * All canvas contexts use { willReadFrequently: true }.
  * A promise-lock prevents MediaPipe double-initialisation.
+ * A 15s timeout prevents hanging if WASM fails to load.
  */
 
 import * as ort from 'onnxruntime-web';
 import { MST_REFERENCE, MODEL_CONFIG, LANDMARKS } from '@utils/constants';
 import { rgbToLab, labToMst, classifyUndertone } from '@utils/colorUtils';
 
-// ── WASM paths (must be set before first session creation) ────────────────────
-ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.18.0/dist/';
+// ── ONNX WASM paths — served from public/onnx/ (no CDN required) ─────────────
+ort.env.wasm.wasmPaths = '/onnx/';
 
-// ── MediaPipe singleton promise-lock ──────────────────────────────────────────
-let faceMeshInstance = null;
-let faceMeshInitialising = null;
+// ── MediaPipe singleton ───────────────────────────────────────────────────────
+// NOTE: @mediapipe/face_mesh@0.4.x does NOT have initialize().
+// Initialisation (WASM loading) happens lazily on the FIRST call to send().
+let faceMeshPromise = null;
 
-async function getFaceMesh() {
-  if (faceMeshInstance) return faceMeshInstance;
-  if (faceMeshInitialising) return faceMeshInitialising;
+function getFaceMesh() {
+  if (faceMeshPromise) return faceMeshPromise;
 
-  faceMeshInitialising = new Promise((resolve, reject) => {
-    // Dynamic import keeps MediaPipe out of the initial bundle
-    import('@mediapipe/face_mesh').then(({ FaceMesh }) => {
-      const fm = new FaceMesh({
-        locateFile: (file) =>
-          `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`,
-      });
+  faceMeshPromise = (async () => {
+    const { FaceMesh } = await import('@mediapipe/face_mesh');
+    const fm = new FaceMesh({
+      locateFile: (file) => `/mediapipe/${file}`,
+    });
+    fm.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: false,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
+    // initialize() exists in 0.4.x and pre-loads WASM + model data
+    // so the first send() doesn't race against WASM compilation.
+    await fm.initialize();
+    return fm;
+  })();
 
-      fm.setOptions({
-        maxNumFaces: 1,
-        refineLandmarks: true,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5,
-      });
-
-      fm.onResults((results) => {
-        fm._lastResults = results;
-      });
-
-      fm.initialize()
-        .then(() => {
-          faceMeshInstance = fm;
-          resolve(fm);
-        })
-        .catch(reject);
-    }).catch(reject);
-  });
-
-  return faceMeshInitialising;
+  return faceMeshPromise;
 }
 
 // ── ONNX session singleton ────────────────────────────────────────────────────
@@ -70,17 +60,19 @@ async function getOnnxSession() {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-/** Draw bitmap to an offscreen canvas and return { ctx, canvas, w, h } */
-function bitmapToCanvas(bitmap) {
-  const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  ctx.drawImage(bitmap, 0, 0);
-  return { ctx, canvas, w: bitmap.width, h: bitmap.height };
+/** Wrap a promise with a timeout; rejects with message on expiry. */
+function withTimeout(promise, ms, message) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(message)), ms),
+    ),
+  ]);
 }
 
 /**
- * Sample pixel colours at normalised (x,y) landmark coordinates,
- * skip near-edge points, return averaged {r,g,b}.
+ * Sample pixel colours at normalised (x,y) landmark coords,
+ * skip near-edge points, return averaged { r, g, b }.
  */
 function sampleLandmarkRegion(ctx, w, h, points) {
   let r = 0, g = 0, b = 0, n = 0;
@@ -89,8 +81,8 @@ function sampleLandmarkRegion(ctx, w, h, points) {
     const px = Math.round(pt.x * w);
     const py = Math.round(pt.y * h);
     if (px < margin || py < margin || px >= w - margin || py >= h - margin) continue;
-    const [pr, pg, pb] = ctx.getImageData(px, py, 1, 1).data;
-    r += pr; g += pg; b += pb; n++;
+    const d = ctx.getImageData(px, py, 1, 1).data;
+    r += d[0]; g += d[1]; b += d[2]; n++;
   }
   if (n === 0) return null;
   return { r: Math.round(r / n), g: Math.round(g / n), b: Math.round(b / n) };
@@ -109,14 +101,14 @@ function preprocessBitmap(bitmap) {
   const tensor = new Float32Array(3 * size * size);
 
   for (let i = 0; i < size * size; i++) {
-    tensor[i]                  = (data[i * 4]     / 255 - mr) / sr; // R
-    tensor[size * size + i]    = (data[i * 4 + 1] / 255 - mg) / sg; // G
-    tensor[2 * size * size + i]= (data[i * 4 + 2] / 255 - mb) / sb; // B
+    tensor[i]                   = (data[i * 4]     / 255 - mr) / sr;
+    tensor[size * size + i]     = (data[i * 4 + 1] / 255 - mg) / sg;
+    tensor[2 * size * size + i] = (data[i * 4 + 2] / 255 - mb) / sb;
   }
   return tensor;
 }
 
-/** Softmax over a Float32Array */
+/** Softmax over a Float32Array → probability distribution */
 function softmax(arr) {
   const max = Math.max(...arr);
   const exps = Array.from(arr).map((v) => Math.exp(v - max));
@@ -124,26 +116,24 @@ function softmax(arr) {
   return exps.map((v) => v / sum);
 }
 
-/**
- * Run ONNX EfficientNet-B0 on the bitmap.
- * Returns { mstIndex: 1-10, confidence: 0-100 }
- */
+/** Run ONNX → { mstIndex: 1-10, confidence: 0-100 } */
 async function runOnnx(bitmap) {
   const session = await getOnnxSession();
-  const data = preprocessBitmap(bitmap);
   const size = MODEL_CONFIG.INPUT_SIZE;
+  const data = preprocessBitmap(bitmap);
   const inputTensor = new ort.Tensor('float32', data, [1, 3, size, size]);
-  const feeds = { [MODEL_CONFIG.INPUT_NAME]: inputTensor };
-  const results = await session.run(feeds);
-  const logits = results[MODEL_CONFIG.OUTPUT_NAME].data;
-  const probs = softmax(logits);
+  const results = await session.run({ [MODEL_CONFIG.INPUT_NAME]: inputTensor });
+  const probs = softmax(results[MODEL_CONFIG.OUTPUT_NAME].data);
   const best = probs.reduce((iMax, v, i, a) => (v > a[iMax] ? i : iMax), 0);
-  return {
-    mstIndex: best + 1, // classes are 0-indexed → MST 1-10
-    confidence: Math.round(probs[best] * 100),
-  };
+  return { mstIndex: best + 1, confidence: Math.round(probs[best] * 100) };
 }
 
+/** Pure colour-based MST via CIEDE2000 — used when MediaPipe or ONNX fails */
+function colourBasedMst(r, g, b) {
+  const lab   = rgbToLab(r, g, b);
+  const entry = labToMst(lab);
+  return entry?.index ?? 5;
+}
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
@@ -154,105 +144,136 @@ async function runOnnx(bitmap) {
  */
 export async function detectSkinTone(bitmap) {
   try {
-    // ── Step 1: MediaPipe FaceMesh ────────────────────────────────────────────
-    const fm = await getFaceMesh();
+    // ── Step 1: MediaPipe FaceMesh ─────────────────────────────────────────
+    let rawLandmarks = null;
+    let landmarks   = null;
 
-    // Convert bitmap → HTMLImageElement for MediaPipe
-    const { ctx, w, h } = bitmapToCanvas(bitmap);
+    try {
+      const fm = await withTimeout(
+        getFaceMesh(),
+        10000,
+        'MediaPipe failed to load.',
+      );
 
-    // Render to a real (visible/offscreen) canvas so MediaPipe can send() it
-    const tmpCanvas = document.createElement('canvas');
-    tmpCanvas.width = w;
-    tmpCanvas.height = h;
-    const tmpCtx = tmpCanvas.getContext('2d', { willReadFrequently: true });
-    tmpCtx.drawImage(bitmap, 0, 0);
+      // Scale image down to max 640px — MediaPipe processes faster on smaller images
+      const MAX_DIM = 640;
+      const scale = Math.min(1, MAX_DIM / Math.max(bitmap.width, bitmap.height));
+      const sw = Math.round(bitmap.width  * scale);
+      const sh = Math.round(bitmap.height * scale);
+      const tmpCanvas = document.createElement('canvas');
+      tmpCanvas.width  = sw;
+      tmpCanvas.height = sh;
+      tmpCanvas.getContext('2d', { willReadFrequently: true }).drawImage(bitmap, 0, 0, sw, sh);
 
-    // MediaPipe send() is async but fires onResults synchronously
-    await fm.send({ image: tmpCanvas });
-    const results = fm._lastResults;
+      // Wrap onResults in a Promise — send() resolves BEFORE onResults fires in v0.4
+      rawLandmarks = await new Promise((resolve) => {
+        const timer = setTimeout(() => {
+          fm.onResults(() => {}); // detach
+          resolve(null);
+        }, 30000);
 
-    if (!results?.multiFaceLandmarks?.[0]) {
-      return { ok: false, error: 'No face detected. Please use a clear, front-facing photo.' };
+        fm.onResults((results) => {
+          clearTimeout(timer);
+          fm.onResults(() => {}); // detach for GC
+          resolve(results?.multiFaceLandmarks?.[0] ?? null);
+        });
+
+        fm.send({ image: tmpCanvas }).catch(() => {
+          clearTimeout(timer);
+          resolve(null);
+        });
+      });
+
+      if (rawLandmarks) {
+        landmarks = {
+          LEFT_CHEEK:          LANDMARKS.LEFT_CHEEK.map((i) => rawLandmarks[i]),
+          RIGHT_CHEEK:         LANDMARKS.RIGHT_CHEEK.map((i) => rawLandmarks[i]),
+          LIPS_OUTER:          LANDMARKS.LIPS_OUTER.map((i) => rawLandmarks[i]),
+          LIPS_INNER:          LANDMARKS.LIPS_INNER.map((i) => rawLandmarks[i]),
+          LEFT_EYE:            LANDMARKS.LEFT_EYE.map((i) => rawLandmarks[i]),
+          RIGHT_EYE:           LANDMARKS.RIGHT_EYE.map((i) => rawLandmarks[i]),
+          LEFT_BLUSH_CENTER:   LANDMARKS.LEFT_BLUSH_CENTER.map((i) => rawLandmarks[i]),
+          RIGHT_BLUSH_CENTER:  LANDMARKS.RIGHT_BLUSH_CENTER.map((i) => rawLandmarks[i]),
+        };
+      }
+    } catch (mpErr) {
+      console.warn('[ShadeSense] MediaPipe:', mpErr.message);
     }
 
-    const raw = results.multiFaceLandmarks[0]; // array of {x,y,z}
+    // ── Step 2: Dominant skin RGB ──────────────────────────────────────────
+    let dominantRgb = { r: 180, g: 140, b: 110 }; // neutral fallback
 
-    // Build named landmark groups for tryOnRenderer
-    const landmarks = {
-      LEFT_CHEEK:          LANDMARKS.LEFT_CHEEK.map((i) => raw[i]),
-      RIGHT_CHEEK:         LANDMARKS.RIGHT_CHEEK.map((i) => raw[i]),
-      LIPS_OUTER:          LANDMARKS.LIPS_OUTER.map((i) => raw[i]),
-      LIPS_INNER:          LANDMARKS.LIPS_INNER.map((i) => raw[i]),
-      LEFT_EYE:            LANDMARKS.LEFT_EYE.map((i) => raw[i]),
-      RIGHT_EYE:           LANDMARKS.RIGHT_EYE.map((i) => raw[i]),
-      LEFT_BLUSH_CENTER:   LANDMARKS.LEFT_BLUSH_CENTER.map((i) => raw[i]),
-      RIGHT_BLUSH_CENTER:  LANDMARKS.RIGHT_BLUSH_CENTER.map((i) => raw[i]),
-    };
+    if (landmarks) {
+      // Sample cheek pixels using MediaPipe landmarks
+      const { ctx, w, h } = (() => {
+        const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+        const c = canvas.getContext('2d', { willReadFrequently: true });
+        c.drawImage(bitmap, 0, 0);
+        return { ctx: c, w: bitmap.width, h: bitmap.height };
+      })();
 
-    // ── Step 2: Cheek pixel sampling → dominant RGB ───────────────────────────
-    const leftSample  = sampleLandmarkRegion(ctx, w, h, landmarks.LEFT_CHEEK);
-    const rightSample = sampleLandmarkRegion(ctx, w, h, landmarks.RIGHT_CHEEK);
+      const left  = sampleLandmarkRegion(ctx, w, h, landmarks.LEFT_CHEEK);
+      const right = sampleLandmarkRegion(ctx, w, h, landmarks.RIGHT_CHEEK);
 
-    let dominantRgb = { r: 180, g: 140, b: 110 }; // fallback neutral
-    if (leftSample && rightSample) {
-      dominantRgb = {
-        r: Math.round((leftSample.r + rightSample.r) / 2),
-        g: Math.round((leftSample.g + rightSample.g) / 2),
-        b: Math.round((leftSample.b + rightSample.b) / 2),
-      };
-    } else if (leftSample) {
-      dominantRgb = leftSample;
-    } else if (rightSample) {
-      dominantRgb = rightSample;
+      if (left && right) {
+        dominantRgb = {
+          r: Math.round((left.r + right.r) / 2),
+          g: Math.round((left.g + right.g) / 2),
+          b: Math.round((left.b + right.b) / 2),
+        };
+      } else if (left || right) {
+        dominantRgb = left ?? right;
+      }
     }
 
     const dominantHex = `#${[dominantRgb.r, dominantRgb.g, dominantRgb.b]
       .map((v) => v.toString(16).padStart(2, '0'))
       .join('')}`;
 
-    // Colour-based MST index via CIEDE2000 (labToMst returns the MST_REFERENCE entry)
-    const dominantLab    = rgbToLab(dominantRgb.r, dominantRgb.g, dominantRgb.b);
-    const colourMstEntry = labToMst(dominantLab);
-    const colourMstIndex = colourMstEntry?.index ?? 5;
+    // Colour-based MST (CIEDE2000)
+    const colourMstIndex = colourBasedMst(dominantRgb.r, dominantRgb.g, dominantRgb.b);
 
-    // ── Step 3: ONNX inference ────────────────────────────────────────────────
+    // ── Step 3: ONNX inference ─────────────────────────────────────────────
     let onnxMstIndex = colourMstIndex;
-    let confidence   = 72; // fallback confidence
+    let confidence   = 68; // conservative fallback
 
     try {
-      const onnxResult = await runOnnx(bitmap);
+      const onnxResult = await withTimeout(
+        runOnnx(bitmap),
+        15000,
+        'ONNX inference timed out.',
+      );
       onnxMstIndex = onnxResult.mstIndex;
       confidence   = onnxResult.confidence;
     } catch (onnxErr) {
-      console.warn('[ShadeSense] ONNX inference failed, falling back to colour-based:', onnxErr);
+      console.warn('[ShadeSense] ONNX:', onnxErr.message);
     }
 
-    // ── Step 4: Sanity check — use colour result if they disagree > 3 indices ─
-    const finalMstIndex = Math.abs(onnxMstIndex - colourMstIndex) > 3
-      ? colourMstIndex
-      : onnxMstIndex;
+    // ── Step 4: Sanity check ───────────────────────────────────────────────
+    // If ONNX and colour disagree by > 3 MST indices, trust the colour result
+    const usedFallback  = Math.abs(onnxMstIndex - colourMstIndex) > 3;
+    const finalMstIndex = usedFallback ? colourMstIndex : onnxMstIndex;
+    const finalConfidence = usedFallback ? Math.min(confidence, 72) : confidence;
 
     const mstEntry = MST_REFERENCE.find((t) => t.index === finalMstIndex)
       ?? MST_REFERENCE[4]; // fallback MST-05
 
-    // ── Step 5: Undertone — classifyUndertone(hex) from colorUtils ──────────
+    // ── Step 5: Undertone ──────────────────────────────────────────────────
     const undertone = classifyUndertone(dominantHex);
 
-    // Clamp confidence: if colour fallback was used, cap at 72
-    const finalConfidence = Math.abs(onnxMstIndex - colourMstIndex) > 3
-      ? Math.min(confidence, 72)
-      : confidence;
-
     return {
-      ok: true,
+      ok:          true,
       mstIndex:    mstEntry.index,
       mstLabel:    mstEntry.label,
       undertone,
       dominantHex,
       confidence:  finalConfidence,
-      landmarks,
+      landmarks,   // null if MediaPipe failed (try-on will be disabled)
     };
   } catch (err) {
-    return { ok: false, error: err.message || 'Skin tone detection failed. Please try again.' };
+    return {
+      ok: false,
+      error: err.message || 'Skin tone detection failed. Please try again.',
+    };
   }
 }

@@ -56,6 +56,20 @@ function reducer(state, action) {
         recommendations: action.payload.recommendations,
       };
 
+    // Atomically reset + restore results from history (avoids RESET→RESULTS flash)
+    case 'RESTORE_HISTORY':
+      return {
+        ...initialState,
+        step: STEPS.RESULTS,
+        mstIndex: action.payload.mstIndex,
+        mstLabel: action.payload.mstLabel,
+        undertone: action.payload.undertone,
+        dominantHex: action.payload.dominantHex,
+        confidence: action.payload.confidence,
+        landmarks: null,
+        recommendations: action.payload.recommendations,
+      };
+
     case 'SET_BRAND_FILTER':
       return { ...state, activeBrands: action.payload.brands };
 

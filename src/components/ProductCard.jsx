@@ -1,27 +1,13 @@
-import { useAppState } from '@state/AppState';
-
 function CompatibilityBadge({ score }) {
   if (score === 2) return <span className="text-xs text-brand font-medium">✓ Great Match</span>;
   if (score === 1) return <span className="text-xs text-muted">○ Good Match</span>;
   return null;
 }
 
-export default function ProductCard({ product, category }) {
-  const { state, dispatch } = useAppState();
-  const isTryingOn = state.activeTryOnShade?.id === product.id;
-
+export default function ProductCard({ product }) {
   const undertoneScore =
-    product.undertone === state.undertone ? 2 :
-    product.undertone === 'neutral' || state.undertone === 'neutral' ? 1 : 0;
-
-  const handleTryOn = () => {
-    dispatch({
-      type: 'SET_TRYON_SHADE',
-      payload: {
-        shade: isTryingOn ? null : { ...product, category },
-      },
-    });
-  };
+    product.undertone === product._undertone ? 2 :
+    product.undertone === 'neutral' ? 1 : 0;
 
   return (
     <article
@@ -50,22 +36,10 @@ export default function ProductCard({ product, category }) {
         <CompatibilityBadge score={undertoneScore} />
       </div>
 
-      {/* Price + actions */}
+      {/* Price + buy */}
       <div className="mt-auto flex items-center gap-2">
         <span className="text-sm font-medium text-charcoal">${product.price_usd.toFixed(2)}</span>
         <div className="flex-1" />
-        <button
-          id={`tryon-${product.id}`}
-          onClick={handleTryOn}
-          className={`px-3 py-1.5 text-xs rounded-full border transition-all duration-150 ${
-            isTryingOn
-              ? 'bg-brand text-white border-brand'
-              : 'border-brand/40 text-brand hover:bg-brand-light'
-          }`}
-          aria-pressed={isTryingOn}
-        >
-          {isTryingOn ? 'Applied' : 'Try On'}
-        </button>
         <a
           href={product.purchase_url}
           target="_blank"

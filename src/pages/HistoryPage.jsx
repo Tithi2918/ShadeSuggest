@@ -19,17 +19,15 @@ export default function HistoryPage() {
   };
 
   const handleEntryClick = (entry) => {
-    // Hydrate the global state from the stored history entry
-    dispatch({ type: 'RESET' });
+    // Single atomic dispatch — avoids RESET→ANALYSIS_COMPLETE flash
     dispatch({
-      type: 'ANALYSIS_COMPLETE',
+      type: 'RESTORE_HISTORY',
       payload: {
-        mstIndex: entry.mstIndex,
-        mstLabel: entry.mstLabel,
-        undertone: entry.undertone,
+        mstIndex:    entry.mstIndex,
+        mstLabel:    entry.mstLabel,
+        undertone:   entry.undertone,
         dominantHex: entry.dominantHex,
-        confidence: entry.confidence,
-        landmarks: null,
+        confidence:  entry.confidence,
         recommendations: entry.recommendations,
       },
     });

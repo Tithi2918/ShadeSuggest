@@ -1,57 +1,311 @@
-// STUB — will be replaced by teammate's real MediaPipe overlay renderer.
-// Honors the documented API:
-//   renderTryOn({ canvas, bitmap, landmarks, activeShades })
-//   exportPreview(canvas) → string (PNG data URL)
+/**
+ * tryOnRenderer.js
+ * Canvas-based makeup overlay.
+ *
+ * Primary path:  MediaPipe landmark polygon → multiply/screen blending
+ * Fallback path: Chrome FaceDetector API → face-relative ellipses
+ * Last resort:   fixed proportions (original selfie with face in upper frame)
+ *
+ * API (unchanged):
+ *   renderTryOn({ canvas, bitmap, landmarks, activeShades, opacity?, faceBounds? })
+ *   exportPreview(canvas) → PNG data URL
+ */
+
 import { TRYON_DEFAULTS } from '@utils/constants';
 
-/**
- * Render a try-on preview onto a canvas element.
- * @param {{ canvas: HTMLCanvasElement, bitmap: ImageBitmap, landmarks: object, activeShades: { lipstick?: object, blush?: object } }} params
- */
-export function renderTryOn({ canvas, bitmap, landmarks: _landmarks, activeShades = {} }) { // eslint-disable-line no-unused-vars
-  if (!canvas || !bitmap) return;
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-  const ctx = canvas.getContext('2d');
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
+function hexToRgb(hex) {
+  const h = hex.replace('#', '');
+  return {
+    r: parseInt(h.slice(0, 2), 16),
+    g: parseInt(h.slice(2, 4), 16),
+    b: parseInt(h.slice(4, 6), 16),
+  };
+}
 
-  // Draw base image
-  ctx.drawImage(bitmap, 0, 0);
+function toPixels(points, w, h) {
+  return points.map((p) => [p.x * w, p.y * h]);
+}
 
-  const w = canvas.width;
-  const h = canvas.height;
+function drawPolygon(ctx, pixelPoints) {
+  if (!pixelPoints.length) return;
+  ctx.beginPath();
+  ctx.moveTo(pixelPoints[0][0], pixelPoints[0][1]);
+  for (let i = 1; i < pixelPoints.length; i++) {
+    ctx.lineTo(pixelPoints[i][0], pixelPoints[i][1]);
+  }
+  ctx.closePath();
+}
 
-  // Lip overlay (stub: filled ellipse over approximate lip region)
-  if (activeShades.lipstick) {
-    ctx.save();
-    ctx.globalAlpha = TRYON_DEFAULTS.LIP_OPACITY;
-    ctx.fillStyle = activeShades.lipstick.hex_code;
-    ctx.beginPath();
-    ctx.ellipse(w * 0.50, h * 0.70, w * 0.08, h * 0.025, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+// ── Lip renderer ──────────────────────────────────────────────────────────────
+
+function renderLipstickLandmark(ctx, w, h, landmarks, shade, opacity) {
+  const { r, g, b } = hexToRgb(shade.hex_code);
+  const outerPx = toPixels(landmarks.LIPS_OUTER, w, h);
+  const innerPx = landmarks.LIPS_INNER?.length
+    ? toPixels(landmarks.LIPS_INNER, w, h)
+    : [];
+
+  const off    = new OffscreenCanvas(w, h);
+  const offCtx = off.getContext('2d');
+  offCtx.shadowColor = `rgba(${r},${g},${b},0.6)`;
+  offCtx.shadowBlur  = Math.max(w * 0.008, 4);
+  offCtx.fillStyle   = `rgb(${r},${g},${b})`;
+
+  drawPolygon(offCtx, outerPx);
+  if (innerPx.length) {
+    drawPolygon(offCtx, innerPx);
+    offCtx.fill('evenodd');
+  } else {
+    offCtx.fill();
   }
 
-  // Blush overlays (left + right cheek)
-  if (activeShades.blush) {
-    const radius = w * TRYON_DEFAULTS.BLUSH_RADIUS;
-    ctx.save();
-    ctx.globalAlpha = TRYON_DEFAULTS.BLUSH_OPACITY;
-    ctx.fillStyle = activeShades.blush.hex_code;
-    // Left cheek
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.drawImage(off, 0, 0);
+  ctx.restore();
+}
+
+/**
+ * Draw a lip ellipse relative to a face bounding box.
+ * faceBounds = { x, y, width, height } in canvas pixels.
+ */
+function renderLipstickGeometric(ctx, shade, opacity, faceBounds) {
+  const { r, g, b } = hexToRgb(shade.hex_code);
+  let cx, cy, rx, ry;
+
+  if (faceBounds) {
+    cx = faceBounds.x + faceBounds.width  * 0.50;
+    cy = faceBounds.y + faceBounds.height * 0.80;
+    rx = faceBounds.width  * 0.20;
+    ry = faceBounds.height * 0.055;
+  } else {
+    // Best-effort heuristic for portrait selfies (face in upper ~55% of frame)
+    const w = ctx.canvas.width;
+    const h = ctx.canvas.height;
+    cx = w * 0.50;
+    cy = h * 0.42;
+    rx = w * 0.09;
+    ry = h * 0.022;
+  }
+
+  // Use source-over so the colour is always visible regardless of skin tone.
+  // (multiply is invisible on dark skin and too subtle without exact landmarks.)
+  ctx.save();
+  ctx.globalAlpha = opacity * 0.65;
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle   = `rgba(${r},${g},${b},1)`;
+  ctx.shadowColor = `rgba(${r},${g},${b},0.5)`;
+  ctx.shadowBlur  = Math.max(rx * 0.4, 8);
+  // Lower lip
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + ry * 0.3, rx, ry, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Upper lip (slightly smaller, shifted up)
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - ry * 0.3, rx * 0.85, ry * 0.7, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+// ── Blush renderer ────────────────────────────────────────────────────────────
+
+function renderBlushLandmark(ctx, w, h, landmarks, shade, opacity) {
+  const { r, g, b } = hexToRgb(shade.hex_code);
+  const radius = w * TRYON_DEFAULTS.BLUSH_RADIUS;
+
+  const getCheekCenter = (pts) => {
+    const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+    const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+    return { cx: cx * w, cy: cy * h };
+  };
+
+  const cheeks = [
+    landmarks.LEFT_BLUSH_CENTER?.length  ? getCheekCenter(landmarks.LEFT_BLUSH_CENTER)  : null,
+    landmarks.RIGHT_BLUSH_CENTER?.length ? getCheekCenter(landmarks.RIGHT_BLUSH_CENTER) : null,
+  ].filter(Boolean);
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  for (const { cx, cy } of cheeks) {
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius * 1.4);
+    grad.addColorStop(0,   `rgba(${r},${g},${b},${opacity})`);
+    grad.addColorStop(0.5, `rgba(${r},${g},${b},${opacity * 0.5})`);
+    grad.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+    ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(w * 0.28, h * 0.55, radius, 0, Math.PI * 2);
+    ctx.arc(cx, cy, radius * 1.4, 0, Math.PI * 2);
     ctx.fill();
-    // Right cheek
+  }
+  ctx.restore();
+}
+
+function renderBlushGeometric(ctx, shade, opacity, faceBounds) {
+  const { r, g, b } = hexToRgb(shade.hex_code);
+  let cheeks;
+
+  if (faceBounds) {
+    const { x, y, width, height } = faceBounds;
+    const cy = y + height * 0.60;
+    const rad = width * 0.18;
+    cheeks = [
+      { cx: x + width * 0.18, cy, rad },
+      { cx: x + width * 0.82, cy, rad },
+    ];
+  } else {
+    const w = ctx.canvas.width;
+    const h = ctx.canvas.height;
+    const rad = w * TRYON_DEFAULTS.BLUSH_RADIUS;
+    cheeks = [
+      { cx: w * 0.28, cy: h * 0.38, rad },
+      { cx: w * 0.72, cy: h * 0.38, rad },
+    ];
+  }
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  for (const { cx, cy, rad } of cheeks) {
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad * 1.4);
+    grad.addColorStop(0,   `rgba(${r},${g},${b},${opacity})`);
+    grad.addColorStop(0.5, `rgba(${r},${g},${b},${opacity * 0.5})`);
+    grad.addColorStop(1,   `rgba(${r},${g},${b},0)`);
+    ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(w * 0.72, h * 0.55, radius, 0, Math.PI * 2);
+    ctx.arc(cx, cy, rad * 1.4, 0, Math.PI * 2);
     ctx.fill();
-    ctx.restore();
+  }
+  ctx.restore();
+}
+
+// ── Public API ────────────────────────────────────────────────────────────────
+
+/**
+ * Try to get a face bounding box from the browser's native FaceDetector API.
+ * Returns null if the API is unavailable or no face is found.
+ * @param {ImageBitmap} bitmap
+ * @returns {Promise<{x,y,width,height}|null>}
+ */
+export async function detectFaceBounds(bitmap) {
+  if (!('FaceDetector' in window)) return null;
+  try {
+    const detector = new window.FaceDetector({ fastMode: true });
+    const faces    = await detector.detect(bitmap);
+    return faces[0]?.boundingBox ?? null;
+  } catch {
+    return null;
   }
 }
 
 /**
- * Export the current canvas as a PNG data URL.
+ * Pure-JS pixel-based face bounds estimation.
+ * Scans a 160-wide thumbnail for skin-coloured pixels (Kovac algorithm),
+ * returns the bounding box of the largest skin region in the upper 65% of
+ * the image. Works entirely offline, no external API required.
+ *
+ * @param {ImageBitmap} bitmap
+ * @returns {Promise<{x,y,width,height}|null>}
+ */
+export async function estimateFaceBoundsFromPixels(bitmap) {
+  const SAMPLE_W = 160;
+  const SAMPLE_H = Math.round((bitmap.height / bitmap.width) * SAMPLE_W);
+
+  const off = new OffscreenCanvas(SAMPLE_W, SAMPLE_H);
+  const ctx = off.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(bitmap, 0, 0, SAMPLE_W, SAMPLE_H);
+  const { data } = ctx.getImageData(0, 0, SAMPLE_W, SAMPLE_H);
+
+  // Only search the upper 65% — avoid picking up hands/clothing at bottom
+  const maxRow = Math.floor(SAMPLE_H * 0.65);
+  let minX = SAMPLE_W, maxX = 0, minY = SAMPLE_H, maxY = 0, count = 0;
+
+  for (let y = 0; y < maxRow; y++) {
+    for (let x = 0; x < SAMPLE_W; x++) {
+      const i = (y * SAMPLE_W + x) * 4;
+      const r = data[i], g = data[i + 1], b = data[i + 2];
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+      // Kovac's skin detection rule-set
+      if (
+        r > 95 && g > 40 && b > 20 &&
+        mx - mn > 15 &&
+        Math.abs(r - g) > 15 &&
+        r > g && r > b
+      ) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+        count++;
+      }
+    }
+  }
+
+  // Need a meaningful skin region (>80 pixels at thumbnail scale)
+  if (count < 80 || maxX <= minX || maxY <= minY) return null;
+
+  const scaleX = bitmap.width  / SAMPLE_W;
+  const scaleY = bitmap.height / SAMPLE_H;
+  return {
+    x:      minX * scaleX,
+    y:      minY * scaleY,
+    width:  (maxX - minX) * scaleX,
+    height: (maxY - minY) * scaleY,
+  };
+}
+
+/**
+ * Render makeup try-on overlays onto a canvas element.
+ *
+ * @param {{
+ *   canvas:      HTMLCanvasElement,
+ *   bitmap:      ImageBitmap,
+ *   landmarks:   object | null,
+ *   activeShades: { lipstick?: object, blush?: object },
+ *   opacity?:    number,
+ *   faceBounds?: { x, y, width, height } | null
+ * }} params
+ */
+export function renderTryOn({
+  canvas,
+  bitmap,
+  landmarks,
+  activeShades = {},
+  opacity,
+  faceBounds = null,
+}) {
+  if (!canvas || !bitmap) return;
+
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  canvas.width  = bitmap.width;
+  canvas.height = bitmap.height;
+
+  const w = canvas.width;
+  const h = canvas.height;
+
+  ctx.drawImage(bitmap, 0, 0);
+
+  if (activeShades.lipstick) {
+    const lipOpacity = opacity ?? TRYON_DEFAULTS.LIP_OPACITY;
+    if (landmarks?.LIPS_OUTER?.length) {
+      renderLipstickLandmark(ctx, w, h, landmarks, activeShades.lipstick, lipOpacity);
+    } else {
+      renderLipstickGeometric(ctx, activeShades.lipstick, lipOpacity, faceBounds);
+    }
+  }
+
+  if (activeShades.blush) {
+    const blushOpacity = opacity ?? TRYON_DEFAULTS.BLUSH_OPACITY;
+    if (landmarks?.LEFT_BLUSH_CENTER?.length || landmarks?.RIGHT_BLUSH_CENTER?.length) {
+      renderBlushLandmark(ctx, w, h, landmarks, activeShades.blush, blushOpacity);
+    } else {
+      renderBlushGeometric(ctx, activeShades.blush, blushOpacity, faceBounds);
+    }
+  }
+}
+
+/**
+ * Export the canvas as a PNG data URL.
  * @param {HTMLCanvasElement} canvas
  * @returns {string}
  */
