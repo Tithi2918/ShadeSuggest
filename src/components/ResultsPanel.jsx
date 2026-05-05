@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useAppState } from '@state/AppState';
 import { getRecommendations } from '@engine/recommendationEngine';
-import { catalogueStore } from '@engine/catalogueStore';
 import { BRAND_LIST, MST_REFERENCE } from '@utils/constants';
 import ProductCard from '@components/ProductCard';
 import TryOnCanvas from '@components/TryOnCanvas';
+
+// Static import — avoids 304 fetch issue with public/products.json
+import catalogue from '../../public/products.json';
 
 const CATEGORY_CONFIG = [
   { key: 'foundation', label: 'Foundation' },
@@ -22,8 +24,7 @@ export default function ResultsPanel() {
 
   const filtered = useMemo(() => {
     if (!recommendations) return { foundation: [], blush: [], lipstick: [] };
-    if (activeBrands.length === 0) return recommendations;
-    const catalogue = catalogueStore.filter({ brands: activeBrands });
+    // Pass full static catalogue; getRecommendations filters by activeBrands internally
     return getRecommendations({ mstIndex, undertone, activeBrands, catalogue });
   }, [activeBrands, mstIndex, undertone, recommendations]);
 
