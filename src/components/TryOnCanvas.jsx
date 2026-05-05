@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAppState } from '@state/AppState';
-import { renderTryOn, exportPreview, detectFaceBounds } from '@cv/tryOnRenderer';
+import { renderTryOn, exportPreview, detectFaceBounds, estimateFaceBoundsFromPixels } from '@cv/tryOnRenderer';
 import { TRYON_DEFAULTS } from '@utils/constants';
 
 const DEFAULT_LIP_OPACITY   = TRYON_DEFAULTS.LIP_OPACITY;
@@ -57,14 +57,14 @@ export default function TryOnCanvas() {
     });
   }, [bitmap, landmarks, activeTryOnShade, opacity, showBefore, faceBounds]);
 
-  // When landmarks are null, try Chrome's native FaceDetector API to get face bounds.
-  // This runs once per bitmap (not per shade) so overlays are positioned correctly.
+  // Cascade: FaceDetector API → pixel-scan (Kovac) → heuristic in renderer
+  // Runs once per bitmap (not per shade) so overlays are positioned on the face.
   useEffect(() => {
-    if (landmarks || !bitmap) return; // landmarks available — no need
+    if (landmarks || !bitmap) return;
     let cancelled = false;
-    detectFaceBounds(bitmap).then((bounds) => {
-      if (!cancelled) setFaceBounds(bounds);
-    });
+    detectFaceBounds(bitmap)
+      .then((bounds) => bounds ?? estimateFaceBoundsFromPixels(bitmap))
+      .then((bounds) => { if (!cancelled) setFaceBounds(bounds); });
     return () => { cancelled = true; };
   }, [bitmap, landmarks]);
 

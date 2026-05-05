@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { useAppState } from '@state/AppState';
 
 const NAV_LINKS = [
   { to: '/', label: 'Home' },
@@ -9,6 +10,14 @@ const NAV_LINKS = [
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const { dispatch } = useAppState();
+
+  const handleAnalyse = () => {
+    dispatch({ type: 'RESET' });
+    navigate('/app');
+    setMenuOpen(false);
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-cream/90 backdrop-blur-sm border-b border-brand-light anim-fade-down">
@@ -41,13 +50,13 @@ export default function Header() {
               {label}
             </NavLink>
           ))}
-          <Link
-            to="/app"
+          <button
             id="header-cta"
+            onClick={handleAnalyse}
             className="ml-2 px-4 py-1.5 border border-brand text-brand text-sm font-body rounded-full hover:bg-brand hover:text-white transition-all duration-200"
           >
             Analyse My Skin
-          </Link>
+          </button>
         </nav>
 
         {/* Mobile hamburger */}
@@ -91,14 +100,13 @@ export default function Header() {
               {label}
             </NavLink>
           ))}
-          <Link
-            to="/app"
+          <button
             id="mobile-cta"
-            onClick={() => setMenuOpen(false)}
+            onClick={handleAnalyse}
             className="mt-1 px-5 py-2 bg-brand text-white text-sm text-center font-body rounded-full hover:bg-brand/90 transition-colors"
           >
             Analyse My Skin
-          </Link>
+          </button>
         </nav>
       )}
     </header>

@@ -199,6 +199,62 @@ export async function detectFaceBounds(bitmap) {
 }
 
 /**
+ * Pure-JS pixel-based face bounds estimation.
+ * Scans a 160-wide thumbnail for skin-coloured pixels (Kovac algorithm),
+ * returns the bounding box of the largest skin region in the upper 65% of
+ * the image. Works entirely offline, no external API required.
+ *
+ * @param {ImageBitmap} bitmap
+ * @returns {Promise<{x,y,width,height}|null>}
+ */
+export async function estimateFaceBoundsFromPixels(bitmap) {
+  const SAMPLE_W = 160;
+  const SAMPLE_H = Math.round((bitmap.height / bitmap.width) * SAMPLE_W);
+
+  const off = new OffscreenCanvas(SAMPLE_W, SAMPLE_H);
+  const ctx = off.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(bitmap, 0, 0, SAMPLE_W, SAMPLE_H);
+  const { data } = ctx.getImageData(0, 0, SAMPLE_W, SAMPLE_H);
+
+  // Only search the upper 65% — avoid picking up hands/clothing at bottom
+  const maxRow = Math.floor(SAMPLE_H * 0.65);
+  let minX = SAMPLE_W, maxX = 0, minY = SAMPLE_H, maxY = 0, count = 0;
+
+  for (let y = 0; y < maxRow; y++) {
+    for (let x = 0; x < SAMPLE_W; x++) {
+      const i = (y * SAMPLE_W + x) * 4;
+      const r = data[i], g = data[i + 1], b = data[i + 2];
+      const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+      // Kovac's skin detection rule-set
+      if (
+        r > 95 && g > 40 && b > 20 &&
+        mx - mn > 15 &&
+        Math.abs(r - g) > 15 &&
+        r > g && r > b
+      ) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+        count++;
+      }
+    }
+  }
+
+  // Need a meaningful skin region (>80 pixels at thumbnail scale)
+  if (count < 80 || maxX <= minX || maxY <= minY) return null;
+
+  const scaleX = bitmap.width  / SAMPLE_W;
+  const scaleY = bitmap.height / SAMPLE_H;
+  return {
+    x:      minX * scaleX,
+    y:      minY * scaleY,
+    width:  (maxX - minX) * scaleX,
+    height: (maxY - minY) * scaleY,
+  };
+}
+
+/**
  * Render makeup try-on overlays onto a canvas element.
  *
  * @param {{
