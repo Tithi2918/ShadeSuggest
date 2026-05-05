@@ -77,29 +77,35 @@ function renderLipstickGeometric(ctx, shade, opacity, faceBounds) {
   let cx, cy, rx, ry;
 
   if (faceBounds) {
-    // Lips: ~lower 25% of face height, centred horizontally on face
     cx = faceBounds.x + faceBounds.width  * 0.50;
-    cy = faceBounds.y + faceBounds.height * 0.80;  // 80% down the face box
+    cy = faceBounds.y + faceBounds.height * 0.80;
     rx = faceBounds.width  * 0.20;
     ry = faceBounds.height * 0.055;
   } else {
-    // Absolute last resort — assume face in upper ~60% of a portrait selfie
+    // Best-effort heuristic for portrait selfies (face in upper ~55% of frame)
     const w = ctx.canvas.width;
     const h = ctx.canvas.height;
     cx = w * 0.50;
-    cy = h * 0.42;   // 42% from top, not 70%
+    cy = h * 0.42;
     rx = w * 0.09;
     ry = h * 0.022;
   }
 
+  // Use source-over so the colour is always visible regardless of skin tone.
+  // (multiply is invisible on dark skin and too subtle without exact landmarks.)
   ctx.save();
-  ctx.globalAlpha = opacity * 0.75;
-  ctx.globalCompositeOperation = 'multiply';
-  ctx.fillStyle   = `rgb(${r},${g},${b})`;
-  ctx.shadowColor = `rgba(${r},${g},${b},0.4)`;
-  ctx.shadowBlur  = Math.max(cx * 0.015, 6);
+  ctx.globalAlpha = opacity * 0.65;
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle   = `rgba(${r},${g},${b},1)`;
+  ctx.shadowColor = `rgba(${r},${g},${b},0.5)`;
+  ctx.shadowBlur  = Math.max(rx * 0.4, 8);
+  // Lower lip
   ctx.beginPath();
-  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+  ctx.ellipse(cx, cy + ry * 0.3, rx, ry, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Upper lip (slightly smaller, shifted up)
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - ry * 0.3, rx * 0.85, ry * 0.7, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }

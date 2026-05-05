@@ -29,22 +29,14 @@ function getFaceMesh() {
 
   faceMeshPromise = import('@mediapipe/face_mesh').then(({ FaceMesh }) => {
     const fm = new FaceMesh({
-      // Serve WASM/data files from public/mediapipe/ (no CDN required)
       locateFile: (file) => `/mediapipe/${file}`,
     });
-
     fm.setOptions({
       maxNumFaces: 1,
-      refineLandmarks: true,
+      refineLandmarks: false,      // faster — we only need cheek landmarks
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
     });
-
-    // Store latest results on the instance; send() fires this synchronously
-    fm.onResults((results) => {
-      fm._lastResults = results;
-    });
-
     return fm;
   });
 
@@ -156,24 +148,37 @@ export async function detectSkinTone(bitmap) {
       const fm = await withTimeout(
         getFaceMesh(),
         10000,
-        'MediaPipe failed to load. Falling back to colour analysis.',
+        'MediaPipe failed to load.',
       );
 
-      // Draw bitmap to a real HTMLCanvasElement (MediaPipe requires this)
+      // Scale image down to max 640px — MediaPipe processes faster on smaller images
+      const MAX_DIM = 640;
+      const scale = Math.min(1, MAX_DIM / Math.max(bitmap.width, bitmap.height));
+      const sw = Math.round(bitmap.width  * scale);
+      const sh = Math.round(bitmap.height * scale);
       const tmpCanvas = document.createElement('canvas');
-      tmpCanvas.width  = bitmap.width;
-      tmpCanvas.height = bitmap.height;
-      const tmpCtx = tmpCanvas.getContext('2d', { willReadFrequently: true });
-      tmpCtx.drawImage(bitmap, 0, 0);
+      tmpCanvas.width  = sw;
+      tmpCanvas.height = sh;
+      tmpCanvas.getContext('2d', { willReadFrequently: true }).drawImage(bitmap, 0, 0, sw, sh);
 
-      // First send() also triggers WASM initialisation (may take a few seconds)
-      await withTimeout(
-        fm.send({ image: tmpCanvas }),
-        12000,
-        'Face detection timed out. Falling back to colour analysis.',
-      );
+      // Wrap onResults in a Promise — send() resolves BEFORE onResults fires in v0.4
+      rawLandmarks = await new Promise((resolve) => {
+        const timer = setTimeout(() => {
+          fm.onResults(() => {}); // detach
+          resolve(null);
+        }, 30000);
 
-      rawLandmarks = fm._lastResults?.multiFaceLandmarks?.[0] ?? null;
+        fm.onResults((results) => {
+          clearTimeout(timer);
+          fm.onResults(() => {}); // detach for GC
+          resolve(results?.multiFaceLandmarks?.[0] ?? null);
+        });
+
+        fm.send({ image: tmpCanvas }).catch(() => {
+          clearTimeout(timer);
+          resolve(null);
+        });
+      });
 
       if (rawLandmarks) {
         landmarks = {
@@ -188,7 +193,6 @@ export async function detectSkinTone(bitmap) {
         };
       }
     } catch (mpErr) {
-      // MediaPipe failure is non-fatal — colour fallback still runs
       console.warn('[ShadeSense] MediaPipe:', mpErr.message);
     }
 
