@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAppState } from '@state/AppState';
-import { renderTryOn, exportPreview } from '@cv/tryOnRenderer';
+import { renderTryOn, exportPreview, detectFaceBounds } from '@cv/tryOnRenderer';
 import { TRYON_DEFAULTS } from '@utils/constants';
 
 const DEFAULT_LIP_OPACITY   = TRYON_DEFAULTS.LIP_OPACITY;
@@ -13,14 +13,15 @@ export default function TryOnCanvas() {
 
   const [showBefore, setShowBefore] = useState(false);
   const [opacity, setOpacity]       = useState(null);
+  const [faceBounds, setFaceBounds] = useState(null);
 
   // Track last shade id so we can detect shade switches
   const lastShadeIdRef = useRef(null);
   if (activeTryOnShade?.id !== lastShadeIdRef.current) {
     lastShadeIdRef.current = activeTryOnShade?.id ?? null;
-    // Reset controls synchronously on render (safe — avoids setState-in-effect)
     if (opacity !== null) setOpacity(null);
     if (showBefore)       setShowBefore(false);
+    // Don't reset faceBounds — it's tied to the bitmap, not the shade
   }
 
   // Re-render whenever shade, bitmap, opacity, or before/after changes
@@ -52,8 +53,20 @@ export default function TryOnCanvas() {
       landmarks,
       activeShades,
       opacity: resolvedOpacity,
+      faceBounds,
     });
-  }, [bitmap, landmarks, activeTryOnShade, opacity, showBefore]);
+  }, [bitmap, landmarks, activeTryOnShade, opacity, showBefore, faceBounds]);
+
+  // When landmarks are null, try Chrome's native FaceDetector API to get face bounds.
+  // This runs once per bitmap (not per shade) so overlays are positioned correctly.
+  useEffect(() => {
+    if (landmarks || !bitmap) return; // landmarks available — no need
+    let cancelled = false;
+    detectFaceBounds(bitmap).then((bounds) => {
+      if (!cancelled) setFaceBounds(bounds);
+    });
+    return () => { cancelled = true; };
+  }, [bitmap, landmarks]);
 
   useEffect(() => {
     redraw();
