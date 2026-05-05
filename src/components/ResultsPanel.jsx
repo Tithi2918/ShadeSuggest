@@ -3,7 +3,6 @@ import { useAppState } from '@state/AppState';
 import { getRecommendations } from '@engine/recommendationEngine';
 import { BRAND_LIST, MST_REFERENCE } from '@utils/constants';
 import ProductCard from '@components/ProductCard';
-import TryOnCanvas from '@components/TryOnCanvas';
 
 // Static import — avoids 304 fetch issue with public/products.json
 import catalogue from '../../public/products.json';
@@ -166,9 +165,6 @@ export default function ResultsPanel() {
           </section>
         );
       })}
-
-      {/* ── Virtual Try-On ────────────────────────────────────────────────── */}
-      <TryOnCanvas />
     </div>
   );
 }
