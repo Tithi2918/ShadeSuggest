@@ -27,18 +27,22 @@ let faceMeshPromise = null;
 function getFaceMesh() {
   if (faceMeshPromise) return faceMeshPromise;
 
-  faceMeshPromise = import('@mediapipe/face_mesh').then(({ FaceMesh }) => {
+  faceMeshPromise = (async () => {
+    const { FaceMesh } = await import('@mediapipe/face_mesh');
     const fm = new FaceMesh({
       locateFile: (file) => `/mediapipe/${file}`,
     });
     fm.setOptions({
       maxNumFaces: 1,
-      refineLandmarks: false,      // faster — we only need cheek landmarks
+      refineLandmarks: false,
       minDetectionConfidence: 0.5,
       minTrackingConfidence: 0.5,
     });
+    // initialize() exists in 0.4.x and pre-loads WASM + model data
+    // so the first send() doesn't race against WASM compilation.
+    await fm.initialize();
     return fm;
-  });
+  })();
 
   return faceMeshPromise;
 }
