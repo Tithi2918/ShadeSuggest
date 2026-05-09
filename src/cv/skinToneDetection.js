@@ -193,22 +193,16 @@ export async function detectSkinTone(bitmap) {
         'MediaPipe failed to load.',
       );
 
-      // Scale image down to max 640px — MediaPipe processes faster on smaller images
-      const MAX_DIM = 640;
-      const scale = Math.min(1, MAX_DIM / Math.max(bitmap.width, bitmap.height));
-      const sw = Math.round(bitmap.width  * scale);
-      const sh = Math.round(bitmap.height * scale);
-      const tmpCanvas = document.createElement('canvas');
-      tmpCanvas.width  = sw;
-      tmpCanvas.height = sh;
-      tmpCanvas.getContext('2d', { willReadFrequently: true }).drawImage(bitmap, 0, 0, sw, sh);
-
-      // Wrap onResults in a Promise — send() resolves BEFORE onResults fires in v0.4
+      // Pass the ImageBitmap directly to MediaPipe. Passing a 2D Canvas with
+      // willReadFrequently: true has a known bug in Chromium where WebGL texture
+      // uploads silently hang and never fire onResults.
       rawLandmarks = await new Promise((resolve) => {
+        // Reduced timeout from 30s to 3s. If MediaPipe takes longer than 3s 
+        // for a single frame, it's failed, and we should fall back immediately.
         const timer = setTimeout(() => {
           fm.onResults(() => {}); // detach
           resolve(null);
-        }, 30000);
+        }, 3000);
 
         fm.onResults((results) => {
           clearTimeout(timer);
@@ -216,7 +210,7 @@ export async function detectSkinTone(bitmap) {
           resolve(results?.multiFaceLandmarks?.[0] ?? null);
         });
 
-        fm.send({ image: tmpCanvas }).catch(() => {
+        fm.send({ image: bitmap }).catch(() => {
           clearTimeout(timer);
           resolve(null);
         });
