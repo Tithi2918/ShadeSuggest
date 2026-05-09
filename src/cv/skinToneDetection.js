@@ -15,6 +15,7 @@
 import * as ort from 'onnxruntime-web';
 import { MST_REFERENCE, MODEL_CONFIG, LANDMARKS } from '@utils/constants';
 import { rgbToLab, labToMst, classifyUndertone } from '@utils/colorUtils';
+import { estimateFaceBoundsFromPixels } from './tryOnRenderer';
 
 // ── ONNX WASM paths — served from public/onnx/ (no CDN required) ─────────────
 ort.env.wasm.wasmPaths = '/onnx/';
@@ -71,29 +72,55 @@ function withTimeout(promise, ms, message) {
 }
 
 /**
- * Sample pixel colours at normalised (x,y) landmark coords,
- * skip near-edge points, return averaged { r, g, b }.
+ * Sample a dense block of pixels around the centroid of the given landmarks.
  */
 function sampleLandmarkRegion(ctx, w, h, points) {
-  let r = 0, g = 0, b = 0, n = 0;
-  const margin = 2;
+  if (!points || !points.length) return null;
+  
+  // Find centroid
+  let cx = 0, cy = 0;
   for (const pt of points) {
-    const px = Math.round(pt.x * w);
-    const py = Math.round(pt.y * h);
-    if (px < margin || py < margin || px >= w - margin || py >= h - margin) continue;
-    const d = ctx.getImageData(px, py, 1, 1).data;
-    r += d[0]; g += d[1]; b += d[2]; n++;
+    cx += pt.x * w;
+    cy += pt.y * h;
   }
-  if (n === 0) return null;
-  return { r: Math.round(r / n), g: Math.round(g / n), b: Math.round(b / n) };
+  cx = Math.round(cx / points.length);
+  cy = Math.round(cy / points.length);
+
+  // Sample a 5% radius block around the centroid
+  const radius = Math.max(10, Math.floor(Math.min(w, h) * 0.05));
+  
+  let r = 0, g = 0, b = 0;
+  try {
+    const imgData = ctx.getImageData(cx - radius, cy - radius, radius * 2, radius * 2).data;
+    const numPixels = imgData.length / 4;
+    for (let i = 0; i < imgData.length; i += 4) {
+      r += imgData[i];
+      g += imgData[i + 1];
+      b += imgData[i + 2];
+    }
+    if (numPixels === 0) return null;
+    return {
+      r: Math.round(r / numPixels),
+      g: Math.round(g / numPixels),
+      b: Math.round(b / numPixels)
+    };
+  } catch {
+    return null; // out of bounds
+  }
 }
 
 /** Preprocess bitmap to a flat Float32 tensor [1, 3, 224, 224] */
-function preprocessBitmap(bitmap) {
+function preprocessBitmap(bitmap, cropBox) {
   const size = MODEL_CONFIG.INPUT_SIZE;
   const canvas = new OffscreenCanvas(size, size);
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  ctx.drawImage(bitmap, 0, 0, size, size);
+  
+  if (cropBox) {
+    ctx.drawImage(bitmap, cropBox.x, cropBox.y, cropBox.width, cropBox.height, 0, 0, size, size);
+  } else {
+    ctx.drawImage(bitmap, 0, 0, size, size);
+  }
+  
   const { data } = ctx.getImageData(0, 0, size, size);
 
   const [mr, mg, mb] = MODEL_CONFIG.MEAN;
@@ -117,10 +144,10 @@ function softmax(arr) {
 }
 
 /** Run ONNX → { mstIndex: 1-10, confidence: 0-100 } */
-async function runOnnx(bitmap) {
+async function runOnnx(bitmap, cropBox) {
   const session = await getOnnxSession();
   const size = MODEL_CONFIG.INPUT_SIZE;
-  const data = preprocessBitmap(bitmap);
+  const data = preprocessBitmap(bitmap, cropBox);
   const inputTensor = new ort.Tensor('float32', data, [1, 3, size, size]);
   const results = await session.run({ [MODEL_CONFIG.INPUT_NAME]: inputTensor });
   const probs = softmax(results[MODEL_CONFIG.OUTPUT_NAME].data);
@@ -226,18 +253,50 @@ export async function detectSkinTone(bitmap) {
       }
     }
 
-    if (!dominantRgb) {
-      // Fallback: Sample the center 20% of the image (assuming a selfie)
-      const { ctx, w, h } = (() => {
+    // ── Step 3: Face Cropping & ONNX inference ─────────────────────────────
+    let faceCropBox = null;
+
+    if (landmarks) {
+      // Calculate bounding box from all landmarks
+      let minX = 1, maxX = 0, minY = 1, maxY = 0;
+      for (const key in landmarks) {
+        for (const pt of landmarks[key]) {
+          if (pt.x < minX) minX = pt.x;
+          if (pt.x > maxX) maxX = pt.x;
+          if (pt.y < minY) minY = pt.y;
+          if (pt.y > maxY) maxY = pt.y;
+        }
+      }
+      
+      const width = maxX - minX;
+      const height = maxY - minY;
+      
+      // Add 15% margin to capture the whole face
+      const marginX = width * 0.15;
+      const marginY = height * 0.15;
+      
+      faceCropBox = {
+        x: Math.max(0, Math.round((minX - marginX) * bitmap.width)),
+        y: Math.max(0, Math.round((minY - marginY) * bitmap.height)),
+        width: Math.min(bitmap.width, Math.round((width + marginX * 2) * bitmap.width)),
+        height: Math.min(bitmap.height, Math.round((height + marginY * 2) * bitmap.height))
+      };
+    } else {
+      faceCropBox = await estimateFaceBoundsFromPixels(bitmap);
+    }
+
+    if (!dominantRgb && faceCropBox) {
+      // If we didn't get cheek samples but we have a face bound, sample the center of the face
+      const { ctx } = (() => {
         const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
         const c = canvas.getContext('2d', { willReadFrequently: true });
         c.drawImage(bitmap, 0, 0);
-        return { ctx: c, w: bitmap.width, h: bitmap.height };
+        return { ctx: c };
       })();
 
-      const cx = Math.floor(w / 2);
-      const cy = Math.floor(h / 2);
-      const radius = Math.floor(Math.min(w, h) * 0.1); // 10% radius = 20% width/height region
+      const cx = Math.floor(faceCropBox.x + faceCropBox.width / 2);
+      const cy = Math.floor(faceCropBox.y + faceCropBox.height / 2);
+      const radius = Math.floor(Math.min(faceCropBox.width, faceCropBox.height) * 0.2); // 20% of face
       
       try {
         const imgData = ctx.getImageData(cx - radius, cy - radius, radius * 2, radius * 2).data;
@@ -258,7 +317,7 @@ export async function detectSkinTone(bitmap) {
           };
         }
       } catch (e) {
-        console.warn('[ShadeSense] Center crop failed:', e);
+        console.warn('[ShadeSense] Face bounds crop failed:', e);
       }
     }
 
@@ -274,13 +333,12 @@ export async function detectSkinTone(bitmap) {
     // Colour-based MST (CIEDE2000)
     const colourMstIndex = colourBasedMst(dominantRgb.r, dominantRgb.g, dominantRgb.b);
 
-    // ── Step 3: ONNX inference ─────────────────────────────────────────────
     let onnxMstIndex = colourMstIndex;
     let confidence   = 68; // conservative fallback
 
     try {
       const onnxResult = await withTimeout(
-        runOnnx(bitmap),
+        runOnnx(bitmap, faceCropBox),
         15000,
         'ONNX inference timed out.',
       );
