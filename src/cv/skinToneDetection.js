@@ -348,11 +348,10 @@ export async function detectSkinTone(bitmap) {
       console.warn('[ShadeSense] ONNX:', onnxErr.message);
     }
 
-    // ── Step 4: Sanity check ───────────────────────────────────────────────
-    // If ONNX and colour disagree by > 3 MST indices, trust the colour result
-    const usedFallback  = Math.abs(onnxMstIndex - colourMstIndex) > 3;
-    const finalMstIndex = usedFallback ? colourMstIndex : onnxMstIndex;
-    const finalConfidence = usedFallback ? Math.min(confidence, 72) : confidence;
+    // ── Step 4: Map to Final MST ───────────────────────────────────────────
+    // We trust ONNX entirely unless it threw an error (in which case onnxMstIndex is already colourMstIndex)
+    const finalMstIndex = onnxMstIndex;
+    const finalConfidence = confidence;
 
     const mstEntry = MST_REFERENCE.find((t) => t.index === finalMstIndex)
       ?? MST_REFERENCE[4]; // fallback MST-05
