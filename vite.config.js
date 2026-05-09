@@ -30,10 +30,11 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    // Exclude MediaPipe from esbuild pre-bundling.
-    // face_mesh.js uses runtime typeof-window checks and dynamic script loading
-    // that esbuild transforms incorrectly, breaking WASM initialisation.
-    exclude: ['@mediapipe/face_mesh'],
+    // Exclude MediaPipe and ONNX from esbuild pre-bundling.
+    // face_mesh.js uses runtime typeof-window checks and dynamic script loading.
+    // onnxruntime-web dynamically imports .mjs web workers from the public folder,
+    // which crashes Vite's pre-bundler.
+    exclude: ['@mediapipe/face_mesh', 'onnxruntime-web'],
   },
   test: {
     globals: true,
