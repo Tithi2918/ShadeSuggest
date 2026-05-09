@@ -132,7 +132,7 @@ async function runOnnx(bitmap) {
 function colourBasedMst(r, g, b) {
   const lab   = rgbToLab(r, g, b);
   const entry = labToMst(lab);
-  return entry?.index ?? 5;
+  return entry?.mstIndex ?? 5;
 }
 
 // ── Main export ───────────────────────────────────────────────────────────────
