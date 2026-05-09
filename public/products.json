@@ -1,63 +1,930 @@
 [
-  { "id": "mac-001", "brand": "MAC", "category": "foundation", "product_name": "Studio Fix Fluid", "shade_name": "NW10", "hex_code": "#F5E6D8", "mst_range": [1, 2], "undertone": "cool", "finish": "matte", "price_usd": 42.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-002", "brand": "MAC", "category": "foundation", "product_name": "Studio Fix Fluid", "shade_name": "NW15", "hex_code": "#F0DCC8", "mst_range": [2, 3], "undertone": "cool", "finish": "matte", "price_usd": 42.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-003", "brand": "MAC", "category": "foundation", "product_name": "Studio Fix Fluid", "shade_name": "NC15", "hex_code": "#F2E0C0", "mst_range": [2, 3], "undertone": "warm", "finish": "matte", "price_usd": 42.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-004", "brand": "MAC", "category": "foundation", "product_name": "Studio Fix Fluid", "shade_name": "NC25", "hex_code": "#E8CC9A", "mst_range": [3, 5], "undertone": "warm", "finish": "matte", "price_usd": 42.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-005", "brand": "MAC", "category": "foundation", "product_name": "Studio Fix Fluid", "shade_name": "NC35", "hex_code": "#C8A070", "mst_range": [5, 6], "undertone": "warm", "finish": "matte", "price_usd": 42.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-006", "brand": "MAC", "category": "foundation", "product_name": "Studio Fix Fluid", "shade_name": "NC45", "hex_code": "#A07848", "mst_range": [6, 7], "undertone": "warm", "finish": "matte", "price_usd": 42.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-007", "brand": "MAC", "category": "foundation", "product_name": "Studio Fix Fluid", "shade_name": "NW45", "hex_code": "#7A5038", "mst_range": [7, 8], "undertone": "cool", "finish": "matte", "price_usd": 42.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-008", "brand": "MAC", "category": "foundation", "product_name": "Studio Fix Fluid", "shade_name": "NW55", "hex_code": "#4A3028", "mst_range": [8, 10], "undertone": "cool", "finish": "matte", "price_usd": 42.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-009", "brand": "MAC", "category": "blush", "product_name": "Powder Blush", "shade_name": "Mocha", "hex_code": "#C4856A", "mst_range": [5, 8], "undertone": "warm", "finish": "matte", "price_usd": 32.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-010", "brand": "MAC", "category": "blush", "product_name": "Powder Blush", "shade_name": "Melba", "hex_code": "#E8A898", "mst_range": [1, 4], "undertone": "cool", "finish": "satin", "price_usd": 32.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-011", "brand": "MAC", "category": "blush", "product_name": "Powder Blush", "shade_name": "Peaches", "hex_code": "#F0B090", "mst_range": [2, 5], "undertone": "warm", "finish": "satin", "price_usd": 32.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-012", "brand": "MAC", "category": "blush", "product_name": "Powder Blush", "shade_name": "Harmony", "hex_code": "#C89880", "mst_range": [4, 7], "undertone": "neutral", "finish": "matte", "price_usd": 32.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-013", "brand": "MAC", "category": "lipstick", "product_name": "Matte Lipstick", "shade_name": "Velvet Teddy", "hex_code": "#B07860", "mst_range": [3, 7], "undertone": "warm", "finish": "matte", "price_usd": 22.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-014", "brand": "MAC", "category": "lipstick", "product_name": "Matte Lipstick", "shade_name": "Whirl", "hex_code": "#A06858", "mst_range": [3, 8], "undertone": "neutral", "finish": "matte", "price_usd": 22.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-015", "brand": "MAC", "category": "lipstick", "product_name": "Matte Lipstick", "shade_name": "Ruby Woo", "hex_code": "#C02030", "mst_range": [1, 5], "undertone": "cool", "finish": "matte", "price_usd": 22.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-016", "brand": "MAC", "category": "lipstick", "product_name": "Matte Lipstick", "shade_name": "Chili", "hex_code": "#A03020", "mst_range": [4, 9], "undertone": "warm", "finish": "matte", "price_usd": 22.00, "purchase_url": "https://maccosmetics.com" },
-  { "id": "mac-017", "brand": "MAC", "category": "lipstick", "product_name": "Matte Lipstick", "shade_name": "Diva", "hex_code": "#602028", "mst_range": [6, 10], "undertone": "cool", "finish": "matte", "price_usd": 22.00, "purchase_url": "https://maccosmetics.com" },
-
-  { "id": "myb-001", "brand": "Maybelline", "category": "foundation", "product_name": "Fit Me Matte", "shade_name": "110 Porcelain", "hex_code": "#F8EEE0", "mst_range": [1, 2], "undertone": "neutral", "finish": "matte", "price_usd": 10.00, "purchase_url": "https://maybelline.com" },
-  { "id": "myb-002", "brand": "Maybelline", "category": "foundation", "product_name": "Fit Me Matte", "shade_name": "120 Classic Ivory", "hex_code": "#F4E4CC", "mst_range": [2, 3], "undertone": "warm", "finish": "matte", "price_usd": 10.00, "purchase_url": "https://maybelline.com" },
-  { "id": "myb-003", "brand": "Maybelline", "category": "foundation", "product_name": "Fit Me Matte", "shade_name": "220 Natural Beige", "hex_code": "#E0C090", "mst_range": [4, 5], "undertone": "warm", "finish": "matte", "price_usd": 10.00, "purchase_url": "https://maybelline.com" },
-  { "id": "myb-004", "brand": "Maybelline", "category": "foundation", "product_name": "Fit Me Matte", "shade_name": "310 Sun Beige", "hex_code": "#C09060", "mst_range": [5, 6], "undertone": "warm", "finish": "matte", "price_usd": 10.00, "purchase_url": "https://maybelline.com" },
-  { "id": "myb-005", "brand": "Maybelline", "category": "foundation", "product_name": "Fit Me Matte", "shade_name": "330 Toffee", "hex_code": "#906040", "mst_range": [6, 7], "undertone": "warm", "finish": "matte", "price_usd": 10.00, "purchase_url": "https://maybelline.com" },
-  { "id": "myb-006", "brand": "Maybelline", "category": "foundation", "product_name": "Fit Me Matte", "shade_name": "360 Mocha", "hex_code": "#604030", "mst_range": [7, 9], "undertone": "neutral", "finish": "matte", "price_usd": 10.00, "purchase_url": "https://maybelline.com" },
-  { "id": "myb-007", "brand": "Maybelline", "category": "blush", "product_name": "Cheek Heat", "shade_name": "Peach Buff", "hex_code": "#F0A880", "mst_range": [1, 4], "undertone": "warm", "finish": "dewy", "price_usd": 12.00, "purchase_url": "https://maybelline.com" },
-  { "id": "myb-008", "brand": "Maybelline", "category": "blush", "product_name": "Cheek Heat", "shade_name": "Coral Crush", "hex_code": "#E08060", "mst_range": [3, 6], "undertone": "warm", "finish": "dewy", "price_usd": 12.00, "purchase_url": "https://maybelline.com" },
-  { "id": "myb-009", "brand": "Maybelline", "category": "blush", "product_name": "Cheek Heat", "shade_name": "Rose Flush", "hex_code": "#D07880", "mst_range": [2, 5], "undertone": "cool", "finish": "dewy", "price_usd": 12.00, "purchase_url": "https://maybelline.com" },
-  { "id": "myb-010", "brand": "Maybelline", "category": "lipstick", "product_name": "SuperStay Matte Ink", "shade_name": "Lover", "hex_code": "#C06070", "mst_range": [1, 4], "undertone": "cool", "finish": "matte", "price_usd": 12.00, "purchase_url": "https://maybelline.com" },
-  { "id": "myb-011", "brand": "Maybelline", "category": "lipstick", "product_name": "SuperStay Matte Ink", "shade_name": "Seductress", "hex_code": "#903040", "mst_range": [4, 8], "undertone": "cool", "finish": "matte", "price_usd": 12.00, "purchase_url": "https://maybelline.com" },
-  { "id": "myb-012", "brand": "Maybelline", "category": "lipstick", "product_name": "SuperStay Matte Ink", "shade_name": "Ruler", "hex_code": "#703028", "mst_range": [5, 10], "undertone": "warm", "finish": "matte", "price_usd": 12.00, "purchase_url": "https://maybelline.com" },
-  { "id": "myb-013", "brand": "Maybelline", "category": "lipstick", "product_name": "SuperStay Matte Ink", "shade_name": "Pioneer", "hex_code": "#B06050", "mst_range": [3, 7], "undertone": "neutral", "finish": "matte", "price_usd": 12.00, "purchase_url": "https://maybelline.com" },
-
-  { "id": "lor-001", "brand": "L'Oréal", "category": "foundation", "product_name": "True Match", "shade_name": "W1 Porcelain", "hex_code": "#F6EAD8", "mst_range": [1, 2], "undertone": "warm", "finish": "satin", "price_usd": 14.00, "purchase_url": "https://loreal.com" },
-  { "id": "lor-002", "brand": "L'Oréal", "category": "foundation", "product_name": "True Match", "shade_name": "C2 Rose Vanilla", "hex_code": "#F0DDD0", "mst_range": [2, 3], "undertone": "cool", "finish": "satin", "price_usd": 14.00, "purchase_url": "https://loreal.com" },
-  { "id": "lor-003", "brand": "L'Oréal", "category": "foundation", "product_name": "True Match", "shade_name": "W3 Golden Beige", "hex_code": "#E8C898", "mst_range": [3, 5], "undertone": "warm", "finish": "satin", "price_usd": 14.00, "purchase_url": "https://loreal.com" },
-  { "id": "lor-004", "brand": "L'Oréal", "category": "foundation", "product_name": "True Match", "shade_name": "N5 True Beige", "hex_code": "#C8A078", "mst_range": [5, 6], "undertone": "neutral", "finish": "satin", "price_usd": 14.00, "purchase_url": "https://loreal.com" },
-  { "id": "lor-005", "brand": "L'Oréal", "category": "foundation", "product_name": "True Match", "shade_name": "W6 Sun Beige", "hex_code": "#A07850", "mst_range": [6, 7], "undertone": "warm", "finish": "satin", "price_usd": 14.00, "purchase_url": "https://loreal.com" },
-  { "id": "lor-006", "brand": "L'Oréal", "category": "foundation", "product_name": "True Match", "shade_name": "C8 Cappuccino", "hex_code": "#6A4030", "mst_range": [7, 9], "undertone": "cool", "finish": "satin", "price_usd": 14.00, "purchase_url": "https://loreal.com" },
-  { "id": "lor-007", "brand": "L'Oréal", "category": "foundation", "product_name": "True Match", "shade_name": "N10 Ebony", "hex_code": "#302018", "mst_range": [9, 10], "undertone": "neutral", "finish": "satin", "price_usd": 14.00, "purchase_url": "https://loreal.com" },
-  { "id": "lor-008", "brand": "L'Oréal", "category": "blush", "product_name": "Age Perfect Blush", "shade_name": "Rosy Outlook", "hex_code": "#E09090", "mst_range": [1, 4], "undertone": "cool", "finish": "satin", "price_usd": 16.00, "purchase_url": "https://loreal.com" },
-  { "id": "lor-009", "brand": "L'Oréal", "category": "blush", "product_name": "Age Perfect Blush", "shade_name": "Nude Beige", "hex_code": "#D0A888", "mst_range": [3, 7], "undertone": "warm", "finish": "satin", "price_usd": 16.00, "purchase_url": "https://loreal.com" },
-  { "id": "lor-010", "brand": "L'Oréal", "category": "blush", "product_name": "Age Perfect Blush", "shade_name": "Berry Bliss", "hex_code": "#B07080", "mst_range": [5, 10], "undertone": "cool", "finish": "satin", "price_usd": 16.00, "purchase_url": "https://loreal.com" },
-  { "id": "lor-011", "brand": "L'Oréal", "category": "lipstick", "product_name": "Colour Riche", "shade_name": "Blushing Berry", "hex_code": "#B05868", "mst_range": [1, 5], "undertone": "cool", "finish": "satin", "price_usd": 11.00, "purchase_url": "https://loreal.com" },
-  { "id": "lor-012", "brand": "L'Oréal", "category": "lipstick", "product_name": "Colour Riche", "shade_name": "Nude Barre", "hex_code": "#C09070", "mst_range": [2, 6], "undertone": "warm", "finish": "satin", "price_usd": 11.00, "purchase_url": "https://loreal.com" },
-  { "id": "lor-013", "brand": "L'Oréal", "category": "lipstick", "product_name": "Colour Riche", "shade_name": "Spice", "hex_code": "#904040", "mst_range": [5, 9], "undertone": "warm", "finish": "matte", "price_usd": 11.00, "purchase_url": "https://loreal.com" },
-  { "id": "lor-014", "brand": "L'Oréal", "category": "lipstick", "product_name": "Colour Riche", "shade_name": "Plum Seduction", "hex_code": "#703058", "mst_range": [6, 10], "undertone": "cool", "finish": "satin", "price_usd": 11.00, "purchase_url": "https://loreal.com" },
-
-  { "id": "rb-001", "brand": "Rare Beauty", "category": "foundation", "product_name": "Liquid Touch Weightless", "shade_name": "100W", "hex_code": "#F8ECD8", "mst_range": [1, 2], "undertone": "warm", "finish": "dewy", "price_usd": 29.00, "purchase_url": "https://rarebeauty.com" },
-  { "id": "rb-002", "brand": "Rare Beauty", "category": "foundation", "product_name": "Liquid Touch Weightless", "shade_name": "200N", "hex_code": "#EDD8B8", "mst_range": [3, 4], "undertone": "neutral", "finish": "dewy", "price_usd": 29.00, "purchase_url": "https://rarebeauty.com" },
-  { "id": "rb-003", "brand": "Rare Beauty", "category": "foundation", "product_name": "Liquid Touch Weightless", "shade_name": "300W", "hex_code": "#D4B088", "mst_range": [4, 6], "undertone": "warm", "finish": "dewy", "price_usd": 29.00, "purchase_url": "https://rarebeauty.com" },
-  { "id": "rb-004", "brand": "Rare Beauty", "category": "foundation", "product_name": "Liquid Touch Weightless", "shade_name": "400N", "hex_code": "#B08860", "mst_range": [6, 7], "undertone": "neutral", "finish": "dewy", "price_usd": 29.00, "purchase_url": "https://rarebeauty.com" },
-  { "id": "rb-005", "brand": "Rare Beauty", "category": "foundation", "product_name": "Liquid Touch Weightless", "shade_name": "460W", "hex_code": "#886040", "mst_range": [7, 8], "undertone": "warm", "finish": "dewy", "price_usd": 29.00, "purchase_url": "https://rarebeauty.com" },
-  { "id": "rb-006", "brand": "Rare Beauty", "category": "foundation", "product_name": "Liquid Touch Weightless", "shade_name": "500C", "hex_code": "#503828", "mst_range": [8, 10], "undertone": "cool", "finish": "dewy", "price_usd": 29.00, "purchase_url": "https://rarebeauty.com" },
-  { "id": "rb-007", "brand": "Rare Beauty", "category": "blush", "product_name": "Soft Pinch Liquid Blush", "shade_name": "Joy", "hex_code": "#F4A0A0", "mst_range": [1, 4], "undertone": "cool", "finish": "dewy", "price_usd": 22.00, "purchase_url": "https://rarebeauty.com" },
-  { "id": "rb-008", "brand": "Rare Beauty", "category": "blush", "product_name": "Soft Pinch Liquid Blush", "shade_name": "Hope", "hex_code": "#E89070", "mst_range": [3, 7], "undertone": "warm", "finish": "dewy", "price_usd": 22.00, "purchase_url": "https://rarebeauty.com" },
-  { "id": "rb-009", "brand": "Rare Beauty", "category": "blush", "product_name": "Soft Pinch Liquid Blush", "shade_name": "Grateful", "hex_code": "#C07868", "mst_range": [5, 10], "undertone": "neutral", "finish": "dewy", "price_usd": 22.00, "purchase_url": "https://rarebeauty.com" },
-  { "id": "rb-010", "brand": "Rare Beauty", "category": "blush", "product_name": "Soft Pinch Liquid Blush", "shade_name": "Believe", "hex_code": "#A06070", "mst_range": [6, 10], "undertone": "cool", "finish": "dewy", "price_usd": 22.00, "purchase_url": "https://rarebeauty.com" },
-  { "id": "rb-011", "brand": "Rare Beauty", "category": "lipstick", "product_name": "Kind Words Matte Lip", "shade_name": "Gracious", "hex_code": "#C88878", "mst_range": [2, 5], "undertone": "warm", "finish": "matte", "price_usd": 20.00, "purchase_url": "https://rarebeauty.com" },
-  { "id": "rb-012", "brand": "Rare Beauty", "category": "lipstick", "product_name": "Kind Words Matte Lip", "shade_name": "Fearless", "hex_code": "#A05060", "mst_range": [3, 8], "undertone": "cool", "finish": "matte", "price_usd": 20.00, "purchase_url": "https://rarebeauty.com" },
-  { "id": "rb-013", "brand": "Rare Beauty", "category": "lipstick", "product_name": "Kind Words Matte Lip", "shade_name": "Confident", "hex_code": "#803848", "mst_range": [5, 10], "undertone": "cool", "finish": "matte", "price_usd": 20.00, "purchase_url": "https://rarebeauty.com" },
-  { "id": "rb-014", "brand": "Rare Beauty", "category": "lipstick", "product_name": "Kind Words Matte Lip", "shade_name": "Brave", "hex_code": "#904028", "mst_range": [6, 10], "undertone": "warm", "finish": "matte", "price_usd": 20.00, "purchase_url": "https://rarebeauty.com" }
+  {
+    "id": "mac-001",
+    "brand": "MAC",
+    "category": "foundation",
+    "product_name": "Studio Fix Fluid",
+    "shade_name": "NW10",
+    "hex_code": "#F5E6D8",
+    "mst_range": [
+      1,
+      2
+    ],
+    "undertone": "cool",
+    "finish": "matte",
+    "price_usd": 42,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Studio%20Fix%20Fluid%20NW10"
+  },
+  {
+    "id": "mac-002",
+    "brand": "MAC",
+    "category": "foundation",
+    "product_name": "Studio Fix Fluid",
+    "shade_name": "NW15",
+    "hex_code": "#F0DCC8",
+    "mst_range": [
+      2,
+      3
+    ],
+    "undertone": "cool",
+    "finish": "matte",
+    "price_usd": 42,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Studio%20Fix%20Fluid%20NW15"
+  },
+  {
+    "id": "mac-003",
+    "brand": "MAC",
+    "category": "foundation",
+    "product_name": "Studio Fix Fluid",
+    "shade_name": "NC15",
+    "hex_code": "#F2E0C0",
+    "mst_range": [
+      2,
+      3
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 42,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Studio%20Fix%20Fluid%20NC15"
+  },
+  {
+    "id": "mac-004",
+    "brand": "MAC",
+    "category": "foundation",
+    "product_name": "Studio Fix Fluid",
+    "shade_name": "NC25",
+    "hex_code": "#E8CC9A",
+    "mst_range": [
+      3,
+      5
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 42,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Studio%20Fix%20Fluid%20NC25"
+  },
+  {
+    "id": "mac-005",
+    "brand": "MAC",
+    "category": "foundation",
+    "product_name": "Studio Fix Fluid",
+    "shade_name": "NC35",
+    "hex_code": "#C8A070",
+    "mst_range": [
+      5,
+      6
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 42,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Studio%20Fix%20Fluid%20NC35"
+  },
+  {
+    "id": "mac-006",
+    "brand": "MAC",
+    "category": "foundation",
+    "product_name": "Studio Fix Fluid",
+    "shade_name": "NC45",
+    "hex_code": "#A07848",
+    "mst_range": [
+      6,
+      7
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 42,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Studio%20Fix%20Fluid%20NC45"
+  },
+  {
+    "id": "mac-007",
+    "brand": "MAC",
+    "category": "foundation",
+    "product_name": "Studio Fix Fluid",
+    "shade_name": "NW45",
+    "hex_code": "#7A5038",
+    "mst_range": [
+      7,
+      8
+    ],
+    "undertone": "cool",
+    "finish": "matte",
+    "price_usd": 42,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Studio%20Fix%20Fluid%20NW45"
+  },
+  {
+    "id": "mac-008",
+    "brand": "MAC",
+    "category": "foundation",
+    "product_name": "Studio Fix Fluid",
+    "shade_name": "NW55",
+    "hex_code": "#4A3028",
+    "mst_range": [
+      8,
+      10
+    ],
+    "undertone": "cool",
+    "finish": "matte",
+    "price_usd": 42,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Studio%20Fix%20Fluid%20NW55"
+  },
+  {
+    "id": "mac-009",
+    "brand": "MAC",
+    "category": "blush",
+    "product_name": "Powder Blush",
+    "shade_name": "Mocha",
+    "hex_code": "#C4856A",
+    "mst_range": [
+      5,
+      8
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 32,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Powder%20Blush%20Mocha"
+  },
+  {
+    "id": "mac-010",
+    "brand": "MAC",
+    "category": "blush",
+    "product_name": "Powder Blush",
+    "shade_name": "Melba",
+    "hex_code": "#E8A898",
+    "mst_range": [
+      1,
+      4
+    ],
+    "undertone": "cool",
+    "finish": "satin",
+    "price_usd": 32,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Powder%20Blush%20Melba"
+  },
+  {
+    "id": "mac-011",
+    "brand": "MAC",
+    "category": "blush",
+    "product_name": "Powder Blush",
+    "shade_name": "Peaches",
+    "hex_code": "#F0B090",
+    "mst_range": [
+      2,
+      5
+    ],
+    "undertone": "warm",
+    "finish": "satin",
+    "price_usd": 32,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Powder%20Blush%20Peaches"
+  },
+  {
+    "id": "mac-012",
+    "brand": "MAC",
+    "category": "blush",
+    "product_name": "Powder Blush",
+    "shade_name": "Harmony",
+    "hex_code": "#C89880",
+    "mst_range": [
+      4,
+      7
+    ],
+    "undertone": "neutral",
+    "finish": "matte",
+    "price_usd": 32,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Powder%20Blush%20Harmony"
+  },
+  {
+    "id": "mac-013",
+    "brand": "MAC",
+    "category": "lipstick",
+    "product_name": "Matte Lipstick",
+    "shade_name": "Velvet Teddy",
+    "hex_code": "#B07860",
+    "mst_range": [
+      3,
+      7
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 22,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Matte%20Lipstick%20Velvet%20Teddy"
+  },
+  {
+    "id": "mac-014",
+    "brand": "MAC",
+    "category": "lipstick",
+    "product_name": "Matte Lipstick",
+    "shade_name": "Whirl",
+    "hex_code": "#A06858",
+    "mst_range": [
+      3,
+      8
+    ],
+    "undertone": "neutral",
+    "finish": "matte",
+    "price_usd": 22,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Matte%20Lipstick%20Whirl"
+  },
+  {
+    "id": "mac-015",
+    "brand": "MAC",
+    "category": "lipstick",
+    "product_name": "Matte Lipstick",
+    "shade_name": "Ruby Woo",
+    "hex_code": "#C02030",
+    "mst_range": [
+      1,
+      5
+    ],
+    "undertone": "cool",
+    "finish": "matte",
+    "price_usd": 22,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Matte%20Lipstick%20Ruby%20Woo"
+  },
+  {
+    "id": "mac-016",
+    "brand": "MAC",
+    "category": "lipstick",
+    "product_name": "Matte Lipstick",
+    "shade_name": "Chili",
+    "hex_code": "#A03020",
+    "mst_range": [
+      4,
+      9
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 22,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Matte%20Lipstick%20Chili"
+  },
+  {
+    "id": "mac-017",
+    "brand": "MAC",
+    "category": "lipstick",
+    "product_name": "Matte Lipstick",
+    "shade_name": "Diva",
+    "hex_code": "#602028",
+    "mst_range": [
+      6,
+      10
+    ],
+    "undertone": "cool",
+    "finish": "matte",
+    "price_usd": 22,
+    "purchase_url": "https://www.maccosmetics.com/esearch?search=MAC%20Matte%20Lipstick%20Diva"
+  },
+  {
+    "id": "myb-001",
+    "brand": "Maybelline",
+    "category": "foundation",
+    "product_name": "Fit Me Matte",
+    "shade_name": "110 Porcelain",
+    "hex_code": "#F8EEE0",
+    "mst_range": [
+      1,
+      2
+    ],
+    "undertone": "neutral",
+    "finish": "matte",
+    "price_usd": 10,
+    "purchase_url": "https://www.maybelline.com/search?q=Maybelline%20Fit%20Me%20Matte%20110%20Porcelain"
+  },
+  {
+    "id": "myb-002",
+    "brand": "Maybelline",
+    "category": "foundation",
+    "product_name": "Fit Me Matte",
+    "shade_name": "120 Classic Ivory",
+    "hex_code": "#F4E4CC",
+    "mst_range": [
+      2,
+      3
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 10,
+    "purchase_url": "https://www.maybelline.com/search?q=Maybelline%20Fit%20Me%20Matte%20120%20Classic%20Ivory"
+  },
+  {
+    "id": "myb-003",
+    "brand": "Maybelline",
+    "category": "foundation",
+    "product_name": "Fit Me Matte",
+    "shade_name": "220 Natural Beige",
+    "hex_code": "#E0C090",
+    "mst_range": [
+      4,
+      5
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 10,
+    "purchase_url": "https://www.maybelline.com/search?q=Maybelline%20Fit%20Me%20Matte%20220%20Natural%20Beige"
+  },
+  {
+    "id": "myb-004",
+    "brand": "Maybelline",
+    "category": "foundation",
+    "product_name": "Fit Me Matte",
+    "shade_name": "310 Sun Beige",
+    "hex_code": "#C09060",
+    "mst_range": [
+      5,
+      6
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 10,
+    "purchase_url": "https://www.maybelline.com/search?q=Maybelline%20Fit%20Me%20Matte%20310%20Sun%20Beige"
+  },
+  {
+    "id": "myb-005",
+    "brand": "Maybelline",
+    "category": "foundation",
+    "product_name": "Fit Me Matte",
+    "shade_name": "330 Toffee",
+    "hex_code": "#906040",
+    "mst_range": [
+      6,
+      7
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 10,
+    "purchase_url": "https://www.maybelline.com/search?q=Maybelline%20Fit%20Me%20Matte%20330%20Toffee"
+  },
+  {
+    "id": "myb-006",
+    "brand": "Maybelline",
+    "category": "foundation",
+    "product_name": "Fit Me Matte",
+    "shade_name": "360 Mocha",
+    "hex_code": "#604030",
+    "mst_range": [
+      7,
+      9
+    ],
+    "undertone": "neutral",
+    "finish": "matte",
+    "price_usd": 10,
+    "purchase_url": "https://www.maybelline.com/search?q=Maybelline%20Fit%20Me%20Matte%20360%20Mocha"
+  },
+  {
+    "id": "myb-007",
+    "brand": "Maybelline",
+    "category": "blush",
+    "product_name": "Cheek Heat",
+    "shade_name": "Peach Buff",
+    "hex_code": "#F0A880",
+    "mst_range": [
+      1,
+      4
+    ],
+    "undertone": "warm",
+    "finish": "dewy",
+    "price_usd": 12,
+    "purchase_url": "https://www.maybelline.com/search?q=Maybelline%20Cheek%20Heat%20Peach%20Buff"
+  },
+  {
+    "id": "myb-008",
+    "brand": "Maybelline",
+    "category": "blush",
+    "product_name": "Cheek Heat",
+    "shade_name": "Coral Crush",
+    "hex_code": "#E08060",
+    "mst_range": [
+      3,
+      6
+    ],
+    "undertone": "warm",
+    "finish": "dewy",
+    "price_usd": 12,
+    "purchase_url": "https://www.maybelline.com/search?q=Maybelline%20Cheek%20Heat%20Coral%20Crush"
+  },
+  {
+    "id": "myb-009",
+    "brand": "Maybelline",
+    "category": "blush",
+    "product_name": "Cheek Heat",
+    "shade_name": "Rose Flush",
+    "hex_code": "#D07880",
+    "mst_range": [
+      2,
+      5
+    ],
+    "undertone": "cool",
+    "finish": "dewy",
+    "price_usd": 12,
+    "purchase_url": "https://www.maybelline.com/search?q=Maybelline%20Cheek%20Heat%20Rose%20Flush"
+  },
+  {
+    "id": "myb-010",
+    "brand": "Maybelline",
+    "category": "lipstick",
+    "product_name": "SuperStay Matte Ink",
+    "shade_name": "Lover",
+    "hex_code": "#C06070",
+    "mst_range": [
+      1,
+      4
+    ],
+    "undertone": "cool",
+    "finish": "matte",
+    "price_usd": 12,
+    "purchase_url": "https://www.maybelline.com/search?q=Maybelline%20SuperStay%20Matte%20Ink%20Lover"
+  },
+  {
+    "id": "myb-011",
+    "brand": "Maybelline",
+    "category": "lipstick",
+    "product_name": "SuperStay Matte Ink",
+    "shade_name": "Seductress",
+    "hex_code": "#903040",
+    "mst_range": [
+      4,
+      8
+    ],
+    "undertone": "cool",
+    "finish": "matte",
+    "price_usd": 12,
+    "purchase_url": "https://www.maybelline.com/search?q=Maybelline%20SuperStay%20Matte%20Ink%20Seductress"
+  },
+  {
+    "id": "myb-012",
+    "brand": "Maybelline",
+    "category": "lipstick",
+    "product_name": "SuperStay Matte Ink",
+    "shade_name": "Ruler",
+    "hex_code": "#703028",
+    "mst_range": [
+      5,
+      10
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 12,
+    "purchase_url": "https://www.maybelline.com/search?q=Maybelline%20SuperStay%20Matte%20Ink%20Ruler"
+  },
+  {
+    "id": "myb-013",
+    "brand": "Maybelline",
+    "category": "lipstick",
+    "product_name": "SuperStay Matte Ink",
+    "shade_name": "Pioneer",
+    "hex_code": "#B06050",
+    "mst_range": [
+      3,
+      7
+    ],
+    "undertone": "neutral",
+    "finish": "matte",
+    "price_usd": 12,
+    "purchase_url": "https://www.maybelline.com/search?q=Maybelline%20SuperStay%20Matte%20Ink%20Pioneer"
+  },
+  {
+    "id": "lor-001",
+    "brand": "L'Oréal",
+    "category": "foundation",
+    "product_name": "True Match",
+    "shade_name": "W1 Porcelain",
+    "hex_code": "#F6EAD8",
+    "mst_range": [
+      1,
+      2
+    ],
+    "undertone": "warm",
+    "finish": "satin",
+    "price_usd": 14,
+    "purchase_url": "https://www.lorealparisusa.com/search?q=L'Or%C3%A9al%20True%20Match%20W1%20Porcelain"
+  },
+  {
+    "id": "lor-002",
+    "brand": "L'Oréal",
+    "category": "foundation",
+    "product_name": "True Match",
+    "shade_name": "C2 Rose Vanilla",
+    "hex_code": "#F0DDD0",
+    "mst_range": [
+      2,
+      3
+    ],
+    "undertone": "cool",
+    "finish": "satin",
+    "price_usd": 14,
+    "purchase_url": "https://www.lorealparisusa.com/search?q=L'Or%C3%A9al%20True%20Match%20C2%20Rose%20Vanilla"
+  },
+  {
+    "id": "lor-003",
+    "brand": "L'Oréal",
+    "category": "foundation",
+    "product_name": "True Match",
+    "shade_name": "W3 Golden Beige",
+    "hex_code": "#E8C898",
+    "mst_range": [
+      3,
+      5
+    ],
+    "undertone": "warm",
+    "finish": "satin",
+    "price_usd": 14,
+    "purchase_url": "https://www.lorealparisusa.com/search?q=L'Or%C3%A9al%20True%20Match%20W3%20Golden%20Beige"
+  },
+  {
+    "id": "lor-004",
+    "brand": "L'Oréal",
+    "category": "foundation",
+    "product_name": "True Match",
+    "shade_name": "N5 True Beige",
+    "hex_code": "#C8A078",
+    "mst_range": [
+      5,
+      6
+    ],
+    "undertone": "neutral",
+    "finish": "satin",
+    "price_usd": 14,
+    "purchase_url": "https://www.lorealparisusa.com/search?q=L'Or%C3%A9al%20True%20Match%20N5%20True%20Beige"
+  },
+  {
+    "id": "lor-005",
+    "brand": "L'Oréal",
+    "category": "foundation",
+    "product_name": "True Match",
+    "shade_name": "W6 Sun Beige",
+    "hex_code": "#A07850",
+    "mst_range": [
+      6,
+      7
+    ],
+    "undertone": "warm",
+    "finish": "satin",
+    "price_usd": 14,
+    "purchase_url": "https://www.lorealparisusa.com/search?q=L'Or%C3%A9al%20True%20Match%20W6%20Sun%20Beige"
+  },
+  {
+    "id": "lor-006",
+    "brand": "L'Oréal",
+    "category": "foundation",
+    "product_name": "True Match",
+    "shade_name": "C8 Cappuccino",
+    "hex_code": "#6A4030",
+    "mst_range": [
+      7,
+      9
+    ],
+    "undertone": "cool",
+    "finish": "satin",
+    "price_usd": 14,
+    "purchase_url": "https://www.lorealparisusa.com/search?q=L'Or%C3%A9al%20True%20Match%20C8%20Cappuccino"
+  },
+  {
+    "id": "lor-007",
+    "brand": "L'Oréal",
+    "category": "foundation",
+    "product_name": "True Match",
+    "shade_name": "N10 Ebony",
+    "hex_code": "#302018",
+    "mst_range": [
+      9,
+      10
+    ],
+    "undertone": "neutral",
+    "finish": "satin",
+    "price_usd": 14,
+    "purchase_url": "https://www.lorealparisusa.com/search?q=L'Or%C3%A9al%20True%20Match%20N10%20Ebony"
+  },
+  {
+    "id": "lor-008",
+    "brand": "L'Oréal",
+    "category": "blush",
+    "product_name": "Age Perfect Blush",
+    "shade_name": "Rosy Outlook",
+    "hex_code": "#E09090",
+    "mst_range": [
+      1,
+      4
+    ],
+    "undertone": "cool",
+    "finish": "satin",
+    "price_usd": 16,
+    "purchase_url": "https://www.lorealparisusa.com/search?q=L'Or%C3%A9al%20Age%20Perfect%20Blush%20Rosy%20Outlook"
+  },
+  {
+    "id": "lor-009",
+    "brand": "L'Oréal",
+    "category": "blush",
+    "product_name": "Age Perfect Blush",
+    "shade_name": "Nude Beige",
+    "hex_code": "#D0A888",
+    "mst_range": [
+      3,
+      7
+    ],
+    "undertone": "warm",
+    "finish": "satin",
+    "price_usd": 16,
+    "purchase_url": "https://www.lorealparisusa.com/search?q=L'Or%C3%A9al%20Age%20Perfect%20Blush%20Nude%20Beige"
+  },
+  {
+    "id": "lor-010",
+    "brand": "L'Oréal",
+    "category": "blush",
+    "product_name": "Age Perfect Blush",
+    "shade_name": "Berry Bliss",
+    "hex_code": "#B07080",
+    "mst_range": [
+      5,
+      10
+    ],
+    "undertone": "cool",
+    "finish": "satin",
+    "price_usd": 16,
+    "purchase_url": "https://www.lorealparisusa.com/search?q=L'Or%C3%A9al%20Age%20Perfect%20Blush%20Berry%20Bliss"
+  },
+  {
+    "id": "lor-011",
+    "brand": "L'Oréal",
+    "category": "lipstick",
+    "product_name": "Colour Riche",
+    "shade_name": "Blushing Berry",
+    "hex_code": "#B05868",
+    "mst_range": [
+      1,
+      5
+    ],
+    "undertone": "cool",
+    "finish": "satin",
+    "price_usd": 11,
+    "purchase_url": "https://www.lorealparisusa.com/search?q=L'Or%C3%A9al%20Colour%20Riche%20Blushing%20Berry"
+  },
+  {
+    "id": "lor-012",
+    "brand": "L'Oréal",
+    "category": "lipstick",
+    "product_name": "Colour Riche",
+    "shade_name": "Nude Barre",
+    "hex_code": "#C09070",
+    "mst_range": [
+      2,
+      6
+    ],
+    "undertone": "warm",
+    "finish": "satin",
+    "price_usd": 11,
+    "purchase_url": "https://www.lorealparisusa.com/search?q=L'Or%C3%A9al%20Colour%20Riche%20Nude%20Barre"
+  },
+  {
+    "id": "lor-013",
+    "brand": "L'Oréal",
+    "category": "lipstick",
+    "product_name": "Colour Riche",
+    "shade_name": "Spice",
+    "hex_code": "#904040",
+    "mst_range": [
+      5,
+      9
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 11,
+    "purchase_url": "https://www.lorealparisusa.com/search?q=L'Or%C3%A9al%20Colour%20Riche%20Spice"
+  },
+  {
+    "id": "lor-014",
+    "brand": "L'Oréal",
+    "category": "lipstick",
+    "product_name": "Colour Riche",
+    "shade_name": "Plum Seduction",
+    "hex_code": "#703058",
+    "mst_range": [
+      6,
+      10
+    ],
+    "undertone": "cool",
+    "finish": "satin",
+    "price_usd": 11,
+    "purchase_url": "https://www.lorealparisusa.com/search?q=L'Or%C3%A9al%20Colour%20Riche%20Plum%20Seduction"
+  },
+  {
+    "id": "rb-001",
+    "brand": "Rare Beauty",
+    "category": "foundation",
+    "product_name": "Liquid Touch Weightless",
+    "shade_name": "100W",
+    "hex_code": "#F8ECD8",
+    "mst_range": [
+      1,
+      2
+    ],
+    "undertone": "warm",
+    "finish": "dewy",
+    "price_usd": 29,
+    "purchase_url": "https://www.rarebeauty.com/search?q=Rare%20Beauty%20Liquid%20Touch%20Weightless%20100W"
+  },
+  {
+    "id": "rb-002",
+    "brand": "Rare Beauty",
+    "category": "foundation",
+    "product_name": "Liquid Touch Weightless",
+    "shade_name": "200N",
+    "hex_code": "#EDD8B8",
+    "mst_range": [
+      3,
+      4
+    ],
+    "undertone": "neutral",
+    "finish": "dewy",
+    "price_usd": 29,
+    "purchase_url": "https://www.rarebeauty.com/search?q=Rare%20Beauty%20Liquid%20Touch%20Weightless%20200N"
+  },
+  {
+    "id": "rb-003",
+    "brand": "Rare Beauty",
+    "category": "foundation",
+    "product_name": "Liquid Touch Weightless",
+    "shade_name": "300W",
+    "hex_code": "#D4B088",
+    "mst_range": [
+      4,
+      6
+    ],
+    "undertone": "warm",
+    "finish": "dewy",
+    "price_usd": 29,
+    "purchase_url": "https://www.rarebeauty.com/search?q=Rare%20Beauty%20Liquid%20Touch%20Weightless%20300W"
+  },
+  {
+    "id": "rb-004",
+    "brand": "Rare Beauty",
+    "category": "foundation",
+    "product_name": "Liquid Touch Weightless",
+    "shade_name": "400N",
+    "hex_code": "#B08860",
+    "mst_range": [
+      6,
+      7
+    ],
+    "undertone": "neutral",
+    "finish": "dewy",
+    "price_usd": 29,
+    "purchase_url": "https://www.rarebeauty.com/search?q=Rare%20Beauty%20Liquid%20Touch%20Weightless%20400N"
+  },
+  {
+    "id": "rb-005",
+    "brand": "Rare Beauty",
+    "category": "foundation",
+    "product_name": "Liquid Touch Weightless",
+    "shade_name": "460W",
+    "hex_code": "#886040",
+    "mst_range": [
+      7,
+      8
+    ],
+    "undertone": "warm",
+    "finish": "dewy",
+    "price_usd": 29,
+    "purchase_url": "https://www.rarebeauty.com/search?q=Rare%20Beauty%20Liquid%20Touch%20Weightless%20460W"
+  },
+  {
+    "id": "rb-006",
+    "brand": "Rare Beauty",
+    "category": "foundation",
+    "product_name": "Liquid Touch Weightless",
+    "shade_name": "500C",
+    "hex_code": "#503828",
+    "mst_range": [
+      8,
+      10
+    ],
+    "undertone": "cool",
+    "finish": "dewy",
+    "price_usd": 29,
+    "purchase_url": "https://www.rarebeauty.com/search?q=Rare%20Beauty%20Liquid%20Touch%20Weightless%20500C"
+  },
+  {
+    "id": "rb-007",
+    "brand": "Rare Beauty",
+    "category": "blush",
+    "product_name": "Soft Pinch Liquid Blush",
+    "shade_name": "Joy",
+    "hex_code": "#F4A0A0",
+    "mst_range": [
+      1,
+      4
+    ],
+    "undertone": "cool",
+    "finish": "dewy",
+    "price_usd": 22,
+    "purchase_url": "https://www.rarebeauty.com/search?q=Rare%20Beauty%20Soft%20Pinch%20Liquid%20Blush%20Joy"
+  },
+  {
+    "id": "rb-008",
+    "brand": "Rare Beauty",
+    "category": "blush",
+    "product_name": "Soft Pinch Liquid Blush",
+    "shade_name": "Hope",
+    "hex_code": "#E89070",
+    "mst_range": [
+      3,
+      7
+    ],
+    "undertone": "warm",
+    "finish": "dewy",
+    "price_usd": 22,
+    "purchase_url": "https://www.rarebeauty.com/search?q=Rare%20Beauty%20Soft%20Pinch%20Liquid%20Blush%20Hope"
+  },
+  {
+    "id": "rb-009",
+    "brand": "Rare Beauty",
+    "category": "blush",
+    "product_name": "Soft Pinch Liquid Blush",
+    "shade_name": "Grateful",
+    "hex_code": "#C07868",
+    "mst_range": [
+      5,
+      10
+    ],
+    "undertone": "neutral",
+    "finish": "dewy",
+    "price_usd": 22,
+    "purchase_url": "https://www.rarebeauty.com/search?q=Rare%20Beauty%20Soft%20Pinch%20Liquid%20Blush%20Grateful"
+  },
+  {
+    "id": "rb-010",
+    "brand": "Rare Beauty",
+    "category": "blush",
+    "product_name": "Soft Pinch Liquid Blush",
+    "shade_name": "Believe",
+    "hex_code": "#A06070",
+    "mst_range": [
+      6,
+      10
+    ],
+    "undertone": "cool",
+    "finish": "dewy",
+    "price_usd": 22,
+    "purchase_url": "https://www.rarebeauty.com/search?q=Rare%20Beauty%20Soft%20Pinch%20Liquid%20Blush%20Believe"
+  },
+  {
+    "id": "rb-011",
+    "brand": "Rare Beauty",
+    "category": "lipstick",
+    "product_name": "Kind Words Matte Lip",
+    "shade_name": "Gracious",
+    "hex_code": "#C88878",
+    "mst_range": [
+      2,
+      5
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 20,
+    "purchase_url": "https://www.rarebeauty.com/search?q=Rare%20Beauty%20Kind%20Words%20Matte%20Lip%20Gracious"
+  },
+  {
+    "id": "rb-012",
+    "brand": "Rare Beauty",
+    "category": "lipstick",
+    "product_name": "Kind Words Matte Lip",
+    "shade_name": "Fearless",
+    "hex_code": "#A05060",
+    "mst_range": [
+      3,
+      8
+    ],
+    "undertone": "cool",
+    "finish": "matte",
+    "price_usd": 20,
+    "purchase_url": "https://www.rarebeauty.com/search?q=Rare%20Beauty%20Kind%20Words%20Matte%20Lip%20Fearless"
+  },
+  {
+    "id": "rb-013",
+    "brand": "Rare Beauty",
+    "category": "lipstick",
+    "product_name": "Kind Words Matte Lip",
+    "shade_name": "Confident",
+    "hex_code": "#803848",
+    "mst_range": [
+      5,
+      10
+    ],
+    "undertone": "cool",
+    "finish": "matte",
+    "price_usd": 20,
+    "purchase_url": "https://www.rarebeauty.com/search?q=Rare%20Beauty%20Kind%20Words%20Matte%20Lip%20Confident"
+  },
+  {
+    "id": "rb-014",
+    "brand": "Rare Beauty",
+    "category": "lipstick",
+    "product_name": "Kind Words Matte Lip",
+    "shade_name": "Brave",
+    "hex_code": "#904028",
+    "mst_range": [
+      6,
+      10
+    ],
+    "undertone": "warm",
+    "finish": "matte",
+    "price_usd": 20,
+    "purchase_url": "https://www.rarebeauty.com/search?q=Rare%20Beauty%20Kind%20Words%20Matte%20Lip%20Brave"
+  }
 ]
