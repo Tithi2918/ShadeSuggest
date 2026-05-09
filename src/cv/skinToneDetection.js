@@ -19,6 +19,8 @@ import { estimateFaceBoundsFromPixels } from './tryOnRenderer';
 
 // ── ONNX WASM paths — served from public/onnx/ (no CDN required) ─────────────
 ort.env.wasm.wasmPaths = '/onnx/';
+// Disable Web Workers to prevent Vite dev server from intercepting and crashing on .mjs imports
+ort.env.wasm.numThreads = 1;
 
 // ── MediaPipe singleton ───────────────────────────────────────────────────────
 // NOTE: @mediapipe/face_mesh@0.4.x does NOT have initialize().
@@ -29,9 +31,18 @@ function getFaceMesh() {
   if (faceMeshPromise) return faceMeshPromise;
 
   faceMeshPromise = (async () => {
-    const mediapipe = await import('@mediapipe/face_mesh');
-    const FaceMesh = mediapipe.FaceMesh || mediapipe.default.FaceMesh;
-    const fm = new FaceMesh({
+    // Inject MediaPipe as a classic script to bypass Vite's CJS module wrapper issues
+    await new Promise((resolve, reject) => {
+      if (window.FaceMesh) return resolve();
+      const script = document.createElement('script');
+      script.src = '/mediapipe/face_mesh.js';
+      script.crossOrigin = 'anonymous';
+      script.onload = resolve;
+      script.onerror = () => reject(new Error('Failed to load face_mesh.js'));
+      document.body.appendChild(script);
+    });
+
+    const fm = new window.FaceMesh({
       locateFile: (file) => `/mediapipe/${file}`,
     });
     fm.setOptions({
