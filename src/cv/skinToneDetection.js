@@ -17,9 +17,8 @@ import { MST_REFERENCE, MODEL_CONFIG, LANDMARKS } from '@utils/constants';
 import { rgbToLab, labToMst, classifyUndertone } from '@utils/colorUtils';
 import { estimateFaceBoundsFromPixels } from './tryOnRenderer';
 
-// ── ONNX WASM paths — served from public/onnx/ (no CDN required) ─────────────
-ort.env.wasm.wasmPaths = '/onnx/';
-// Disable Web Workers to prevent Vite dev server from intercepting and crashing on .mjs imports
+// ── ONNX WASM paths — Bypass Vite dev server by serving from CDN ───────────
+ort.env.wasm.wasmPaths = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.25.1/dist/';
 ort.env.wasm.numThreads = 1;
 
 // ── MediaPipe singleton ───────────────────────────────────────────────────────
