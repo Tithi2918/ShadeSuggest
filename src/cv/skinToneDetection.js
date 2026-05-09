@@ -29,7 +29,8 @@ function getFaceMesh() {
   if (faceMeshPromise) return faceMeshPromise;
 
   faceMeshPromise = (async () => {
-    const { FaceMesh } = await import('@mediapipe/face_mesh');
+    const mediapipe = await import('@mediapipe/face_mesh');
+    const FaceMesh = mediapipe.FaceMesh || mediapipe.default.FaceMesh;
     const fm = new FaceMesh({
       locateFile: (file) => `/mediapipe/${file}`,
     });

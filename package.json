@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "format": "prettier --write src",
     "test": "vitest",
-    "copy-wasm": "mkdir -p public/onnx public/mediapipe && cp node_modules/onnxruntime-web/dist/*.wasm public/onnx/ && cp node_modules/@mediapipe/face_mesh/face_mesh*.{js,wasm,data,binarypb} public/mediapipe/ && echo 'WASM assets copied'"
+    "copy-wasm": "mkdir -p public/onnx public/mediapipe && cp node_modules/onnxruntime-web/dist/*.{wasm,mjs} public/onnx/ 2>/dev/null || cp node_modules/onnxruntime-web/dist/*.wasm public/onnx/ && cp node_modules/@mediapipe/face_mesh/face_mesh*.{js,wasm,data,binarypb} public/mediapipe/ && echo 'WASM assets copied'"
   },
   "dependencies": {
     "@mediapipe/camera_utils": "^0.3.1675466862",
