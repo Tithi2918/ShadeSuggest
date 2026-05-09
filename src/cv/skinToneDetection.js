@@ -201,7 +201,7 @@ export async function detectSkinTone(bitmap) {
     }
 
     // ── Step 2: Dominant skin RGB ──────────────────────────────────────────
-    let dominantRgb = { r: 180, g: 140, b: 110 }; // neutral fallback
+    let dominantRgb = null;
 
     if (landmarks) {
       // Sample cheek pixels using MediaPipe landmarks
@@ -224,6 +224,47 @@ export async function detectSkinTone(bitmap) {
       } else if (left || right) {
         dominantRgb = left ?? right;
       }
+    }
+
+    if (!dominantRgb) {
+      // Fallback: Sample the center 20% of the image (assuming a selfie)
+      const { ctx, w, h } = (() => {
+        const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+        const c = canvas.getContext('2d', { willReadFrequently: true });
+        c.drawImage(bitmap, 0, 0);
+        return { ctx: c, w: bitmap.width, h: bitmap.height };
+      })();
+
+      const cx = Math.floor(w / 2);
+      const cy = Math.floor(h / 2);
+      const radius = Math.floor(Math.min(w, h) * 0.1); // 10% radius = 20% width/height region
+      
+      try {
+        const imgData = ctx.getImageData(cx - radius, cy - radius, radius * 2, radius * 2).data;
+        let r = 0, g = 0, b = 0;
+        const numPixels = imgData.length / 4;
+        
+        for (let i = 0; i < imgData.length; i += 4) {
+          r += imgData[i];
+          g += imgData[i + 1];
+          b += imgData[i + 2];
+        }
+        
+        if (numPixels > 0) {
+          dominantRgb = {
+            r: Math.round(r / numPixels),
+            g: Math.round(g / numPixels),
+            b: Math.round(b / numPixels),
+          };
+        }
+      } catch (e) {
+        console.warn('[ShadeSense] Center crop failed:', e);
+      }
+    }
+
+    // Ultimate safety fallback if all sampling fails
+    if (!dominantRgb) {
+      dominantRgb = { r: 180, g: 140, b: 110 }; 
     }
 
     const dominantHex = `#${[dominantRgb.r, dominantRgb.g, dominantRgb.b]
